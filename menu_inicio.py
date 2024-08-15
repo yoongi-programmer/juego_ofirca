@@ -64,5 +64,39 @@ class MenuInicio:
         return "salir"
 
     def mostrar_informacion(self):
-        print("Mostrando información...")
-        # Aquí puedes agregar el código para mostrar la información del juego.
+        # Cargar frames del GIF
+        frames_info = cargar_gif_fondo("img/instrucciones/frame0.png")
+        frame_actual = 0
+        self.fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 75)
+
+        # Dibujar las instrucciones
+        titulo = "Instrucciones"
+        boton_volver = pygame.Rect(200, 570, 200, 50)
+
+        corriendo = True
+        reloj = pygame.time.Clock()
+        while corriendo:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if evento.type == pygame.MOUSEBUTTONDOWN:
+                    if boton_volver.collidepoint(evento.pos):
+                        corriendo = False  # Volver al menú principal
+
+            # Actualizar frame del GIF
+            frame_actual = (frame_actual + 1) % len(frames_info)
+
+            # Dibujar fondo
+            self.pantalla.blit(frames_info[frame_actual], (0, 0))
+
+            # Dibujar título e instrucciones
+            dibujar_texto(self.pantalla, titulo, self.fuente_title, self.color_blanco, 300, 15)
+
+            # Dibujar el botón de volver
+            pygame.draw.rect(self.pantalla, self.color_blanco, boton_volver, width=3)
+            dibujar_texto(self.pantalla, "Volver", self.fuente, self.color_blanco, 235, 580)
+
+            pygame.display.flip()
+            reloj.tick(0.5)  # Ajustar la velocidad de animación
+

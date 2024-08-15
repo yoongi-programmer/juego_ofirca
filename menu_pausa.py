@@ -12,13 +12,14 @@ class MenuPausa:
         self.ultimo_cambio = pygame.time.get_ticks()
         self.menu_inicio = menu_inicio  # Guardar referencia de la instancia del menú de inicio
 
-    def mostrar_menu(self):
+    def mostrar_menu(self,pantalla):
         fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 80)
         fuente = pygame.font.Font("fonts/monocode/Monocode.ttf", 32)
+        recuadro = pygame.image.load("img/assets/recuadro_pausa.png")
         color_blanco = (255, 255, 255)
         pos_title = (440, 100)
-        pos_btn1 = (455, 280)
-        pos_btn2 = (495, 357)
+        pos_btn1 = (455, 303) #eje x, eje y
+        pos_btn2 = (495, 397) #eje x, eje y
 
         while True:
             for event in pygame.event.get():
@@ -39,13 +40,13 @@ class MenuPausa:
                 self.ultimo_cambio = ahora
 
             self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
-
+            self.pantalla.blit(recuadro,(368,80))
             # Dibujar los botones
-            rect_reanudar = pygame.Rect(430, 270, 370, 50)  ## x, y, ancho, alto
-            rect_salir = pygame.Rect(430, 345, 370, 50)
+            rect_reanudar = pygame.Rect(430, 290, 370, 60)  ## x, y, ancho, alto
+            rect_salir = pygame.Rect(430, 385, 370, 60)
             pygame.draw.rect(self.pantalla, color_blanco, rect_reanudar, width=3)
             pygame.draw.rect(self.pantalla, color_blanco, rect_salir, width=3)
             dibujar_texto(self.pantalla, "PAUSA", fuente_title, color_blanco, pos_title[0], pos_title[1])
             dibujar_texto(self.pantalla, "ESC para reanudar", fuente, color_blanco, pos_btn1[0], pos_btn1[1])
-            dibujar_texto(self.pantalla, "Q para volver al menú", fuente, color_blanco, pos_btn2[0], pos_btn2[1])
+            dibujar_texto(self.pantalla, "Q para salir", fuente, color_blanco, pos_btn2[0], pos_btn2[1])
             pygame.display.flip()

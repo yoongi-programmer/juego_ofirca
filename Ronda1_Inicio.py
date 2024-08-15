@@ -104,10 +104,7 @@ def inicializar_juego():
     bolsa_negra_3 = Bolsa("img/assets/BolsaGrisOscuro.png", posBolsaGris3, "gris")
     # Guardar las instancias en listas
     bolsas = [bolsa_verde_1, bolsa_verde_2, bolsa_negra_1, bolsa_negra_2, bolsa_negra_3]
-    cestos = [cesto_verde, cesto_negro]
-#___________________Funcion que dibuja el fondo del juego__________________
-
-    
+    cestos = [cesto_verde, cesto_negro]    
 #_________________Funcion que dibuja los textos para el juego______________
 def dibujar_texto(texto, tipografia, color_texto, ancho_recuadro, alto_recuadro, color_recuadro, pos_x, pos_y):
     textoReglas = tipografia.render(texto, False, color_texto)
@@ -188,7 +185,7 @@ def bucle_juego(pantalla):
                 if event.key == pygame.K_ESCAPE:
                     juegoPausado = not juegoPausado
                     if juegoPausado:
-                        menu_pausa.mostrar_menu()  # Mostrar el menú de pausa
+                        menu_pausa.mostrar_menu(pantalla)  # Mostrar el menú de pausa
                         juegoPausado = False  
                         pygame.time.delay(100)  # Evitar registrar múltiples pulsaciones rápidas de ESC
         
