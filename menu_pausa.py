@@ -2,6 +2,7 @@ import pygame
 import sys
 from utilidades import dibujar_texto, cargar_gif_fondo
 from menu_inicio import MenuInicio
+pygame.init
 
 class MenuPausa:
     def __init__(self, pantalla, menu_inicio):

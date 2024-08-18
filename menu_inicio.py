@@ -1,9 +1,9 @@
 import pygame
 from utilidades import dibujar_texto, cargar_gif_fondo
+pygame.init()
 
 class MenuInicio:
     def __init__(self):
-        pygame.init()
         self.pantalla = pygame.display.set_mode((1150, 640))
         pygame.display.set_caption("Pantalla de Inicio del Juego")
 
@@ -59,7 +59,6 @@ class MenuInicio:
 
             pygame.display.flip()
             reloj.tick(10)
-
         pygame.quit()
         return "salir"
 
@@ -87,16 +86,11 @@ class MenuInicio:
             # Actualizar frame del GIF
             frame_actual = (frame_actual + 1) % len(frames_info)
 
-            # Dibujar fondo
+            # Dibujar fondo, título y el boton para volver
             self.pantalla.blit(frames_info[frame_actual], (0, 0))
-
-            # Dibujar título e instrucciones
             dibujar_texto(self.pantalla, titulo, self.fuente_title, self.color_blanco, 300, 15)
-
-            # Dibujar el botón de volver
             pygame.draw.rect(self.pantalla, self.color_blanco, boton_volver, width=3)
             dibujar_texto(self.pantalla, "Volver", self.fuente, self.color_blanco, 235, 580)
 
             pygame.display.flip()
             reloj.tick(0.5)  # Ajustar la velocidad de animación
-
