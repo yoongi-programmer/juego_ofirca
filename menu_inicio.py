@@ -4,6 +4,7 @@ pygame.init()
 
 class MenuInicio:
     def __init__(self):
+        print("Dibujando pantalla de menu inicio")
         self.pantalla = pygame.display.set_mode((1150, 640))
         pygame.display.set_caption("Pantalla de Inicio del Juego")
 
@@ -11,11 +12,9 @@ class MenuInicio:
         self.boton_empezar = pygame.Rect(190, 247, 300, 50)
         self.boton_informacion = pygame.Rect(190, 349, 300, 50)
         self.boton_salir = pygame.Rect(190, 449, 300, 50)
-
         # Cargar frames del GIF
         self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png")
         self.frame_actual = 0
-
         # Fuentes y colores
         self.fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 80)
         self.fuente = pygame.font.Font("fonts/monocode/Monocode.ttf", 36)
@@ -28,7 +27,6 @@ class MenuInicio:
     def bucle_principal(self):
         reloj = pygame.time.Clock()
         corriendo = True
-
         while corriendo:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
@@ -43,7 +41,6 @@ class MenuInicio:
                         return "salir"  # Indicamos que el jugador quiere salir
 
             self.pantalla.fill((0, 0, 0))
-
             # Actualizar frame del GIF
             self.frame_actual = (self.frame_actual + 1) % len(self.frames)
             self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
@@ -85,7 +82,6 @@ class MenuInicio:
 
             # Actualizar frame del GIF
             frame_actual = (frame_actual + 1) % len(frames_info)
-
             # Dibujar fondo, título y el boton para volver
             self.pantalla.blit(frames_info[frame_actual], (0, 0))
             dibujar_texto(self.pantalla, titulo, self.fuente_title, self.color_blanco, 300, 15)

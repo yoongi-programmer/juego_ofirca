@@ -29,9 +29,11 @@ class MenuPausa:
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        print("pausa o despausa")
                         return  # Salir del menú y reanudar el juego
                     if event.key == pygame.K_q:
                         # Volver al menú de inicio
+                        print("salir del juego")
                         self.menu_inicio.bucle_principal()  # Llama al menú de inicio
                         return  # Salir del menú de pausa
 

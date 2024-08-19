@@ -1,8 +1,9 @@
 #!/usr/bin/env python, -*- coding: utf-8 -*-
-import pygame
+import pygame #bajar la libreria desde la terminal
+import pygame_gui #bajar la libreria desde la terminal
 import sys
 import random
-import pygame_gui
+import tiempo
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 import cambiarpersonaje
@@ -13,7 +14,6 @@ pygame.font.init()
 class Jugador (pygame.sprite.Sprite):
     def __init__(self, imagen, nombre, posicion_inicial, rapidez,numPersonaje):
         super().__init__()
-        rutaImagen=["img/assets/UAIBOT.png","img/assets/bota.png","img/assets/uaibotino.png","img/assets/uaibotina.png"]
         if numPersonaje==1:
             self.robotActual = pygame.transform.scale(pygame.image.load("img/assets/UAIBOT.png").convert_alpha(), (pantalla.get_width() // 10, pantalla.get_height() // 5))
         elif numPersonaje==2:
@@ -26,7 +26,7 @@ class Jugador (pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 10, pantalla.get_height() // 5))
         self.rect = self.image.get_rect(topleft = posicion_inicial)
         self.nombre = nombre
-        self.rapidez = rapidez       
+        self.rapidez = int(rapidez)
 
     def dibujar(self, pantalla):
         pantalla.blit(self.image, self.rect)
@@ -69,19 +69,15 @@ ancho_pantalla = 1150
 alto_pantalla = 640
 pantalla = pygame.display.set_mode((ancho_pantalla, alto_pantalla))
 titulo_ventana = "OFIRCA 2024 - Ronda 1 - Inicio"
-# Crear instancia del menú de inicio y pausa
-menu_inicio = MenuInicio()
-opcion_menu_inicio = menu_inicio.bucle_principal()  # Mostrar el menú de inicio y obtener la opción seleccionada
-menu_pausa = MenuPausa(pantalla,menu_inicio)
 # Definicion de variables del juego
-juegoEnEjecucion = True
-clock = pygame.time.Clock()
-ticksAlComenzar = pygame.time.get_ticks()
-juegoPausado = False
+juego_ejecutado = True
+reloj = pygame.time.Clock()
+ticks = pygame.time.get_ticks()
+juego_pausado = False
 # Datos del personaje
-nombrePersonaje = 'UAIBOT'
-rapidezPersonaje = 7
-rutaImagen=["img/assets/UAIBOT.png","img/assets/bota.png","img/assets/uaibotino.png","img/assets/uaibotina.png"]
+nombre_personaje = 'UAIBOT'
+rapidez_personaje = 7
+ruta_imagen=["img/assets/UAIBOT.png","img/assets/bota.png","img/assets/uaibotino.png","img/assets/uaibotina.png"]
 nombres=['UAIBOT','BOTA','UAIBOTINO','UAIBOTINA']
 velocidades=['7','6','8','8']
 numRobot=[1,2,3,4]
@@ -111,7 +107,7 @@ def inicializar_juego():
     posBolsaVerde2 = [random.randint(250, 900), random.randint(400, 460)]
     posBot1 = [random.randint(50, 700), random.randint(50, 400)]
     # Incializar instancias de las clases
-    jugador = Jugador("img/assets/uaibotino.png", nombrePersonaje, posBot1, rapidezPersonaje,numRobot[0])
+    jugador = Jugador("img/assets/uaibotino.png", nombre_personaje, posBot1, rapidez_personaje,numRobot[0])
     cesto_verde = Cesto("img/assets/cestoverder.png", (1000, 170))
     cesto_negro = Cesto("img/assets/cestogriss.png", (1000, 430))
     bolsa_verde_1 = Bolsa("img/assets/BolsaVerde.png", posBolsaVerde1, "verde")
@@ -159,7 +155,7 @@ def dibujar_bolsas_y_cestos(pantalla):
         cesto.dibujar(pantalla)
     jugador.dibujar(pantalla)
 #_______Funcion que maneja la lógica de colisiones con bolsas y cestos______
-def logica_bolsa_cestos(jugador,juegoEnEjecucion, bolsas, cesto_verde, cesto_negro, contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas):
+def logica_bolsa_cestos(jugador,juego_ejecutado, bolsas, cesto_verde, cesto_negro, contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas):
     for bolsa in bolsas[:]:
         if jugador.rect.colliderect(bolsa.rect):
             if bolsa.tipo == "verde" and contador_bolsas_v < 2:
@@ -183,9 +179,9 @@ def logica_bolsa_cestos(jugador,juegoEnEjecucion, bolsas, cesto_verde, cesto_neg
         contador_bolsas_g = 0
 
     if total_bolsas == 0:
-       juegoEnEjecucion = False
+       juego_ejecutado = False
 
-    return juegoEnEjecucion,contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas
+    return juego_ejecutado,contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas
 
 def reiniciar_valores():
     contador_bolsas_v = 0
@@ -237,7 +233,7 @@ def entrada_texto():
     pygame.display.flip()
 
     while True:
-        UI_REFRESH_RATE = clock.tick(60)/1000
+        UI_REFRESH_RATE = reloj.tick(60)/1000
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -246,8 +242,7 @@ def entrada_texto():
                 event.ui_object_id == '#main_text_entry'):
                 otra_partida(event.text)
             
-            manager.process_events(event)
-        
+            manager.process_events(event)   
         manager.update(UI_REFRESH_RATE)
         manager.draw_ui(pantalla)
         ancho = 100
@@ -258,23 +253,22 @@ def entrada_texto():
         dibujar_texto(tiempoHecho,tipografia,colorBlanco,ancho,alto,colorNegro,pos_x,pos_y)
         pygame.display.update()
 
-def otra_partida():
+def otra_partida(texto):
+    print(texto)
     inicializar_juego()
     bucle_juego(pantalla)
-
     
 #__________Funcion que maneja toda la logica del juego en bucle_____________
 def bucle_juego(pantalla):
-    global juegoEnEjecucion, juegoPausado
+    global juego_ejecutado, juego_pausado
     global jugador
     global tiempoHecho
 
-    import tiempo
     miCronometro=tiempo.cronometro()
     miCronometro.iniciar()
     contador_bolsas_v,contador_bolsas_g,bolsas_g_depositadas,bolsas_v_depositadas,total_bolsas=reiniciar_valores()
 
-    while juegoEnEjecucion:
+    while juego_ejecutado:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -282,38 +276,37 @@ def bucle_juego(pantalla):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     miCronometro.detener()
-                    juegoPausado = not juegoPausado
-                    if juegoPausado:
+                    juego_pausado = not juego_pausado
+                    if juego_pausado:
                         menu_pausa.mostrar_menu(pantalla)  # Mostrar el menú de pausa
-                        juegoPausado = False  
+                        juego_pausado = False  
                         pygame.time.delay(100)  # Evitar registrar múltiples pulsaciones rápidas de ESC
         
-        if not juegoPausado:
+        if not juego_pausado:
             miCronometro.iniciar()
             minuts,seconds,miliseconds=miCronometro.actualizar_tiempo()
             keys = pygame.key.get_pressed()
             velocidad = [0, 0]
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 velocidad[0] = -jugador.rapidez
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 velocidad[0] = jugador.rapidez
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
                 velocidad[1] = -jugador.rapidez
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
                 velocidad[1] = jugador.rapidez
-            if keys[pygame.K_c]: 
-                
+            if keys[pygame.K_c]:                 
                 miCronometro.detener()
                 personajeElegido=cambiarpersonaje.main()
                 if personajeElegido<=4:
                     if personajeElegido==1:
-                        jugador=Jugador(rutaImagen[0],nombres[0],posBot1,velocidades[0],personajeElegido)
+                        jugador=Jugador(ruta_imagen[0],nombres[0],posBot1,velocidades[0],personajeElegido)
                     elif personajeElegido==2:
-                        jugador=Jugador(rutaImagen[1],nombres[1],posBot1,velocidades[1],personajeElegido)
+                        jugador=Jugador(ruta_imagen[1],nombres[1],posBot1,velocidades[1],personajeElegido)
                     elif personajeElegido==3:
-                        jugador=Jugador(rutaImagen[2],nombres[2],posBot1,velocidades[2],personajeElegido)
+                        jugador=Jugador(ruta_imagen[2],nombres[2],posBot1,velocidades[2],personajeElegido)
                     elif personajeElegido==4:
-                        jugador=Jugador(rutaImagen[3],nombres[3],posBot1,velocidades[3],personajeElegido)
+                        jugador=Jugador(ruta_imagen[3],nombres[3],posBot1,velocidades[3],personajeElegido)
                 elif personajeElegido>5:
                     pass
                 pygame.display.set_caption("Inicio")
@@ -321,11 +314,11 @@ def bucle_juego(pantalla):
         tiempoHecho=str(minuts)+":"+str(seconds)+":"+str(miliseconds)
         jugador.mover(velocidad)
         jugador.limitar_a_pantalla()
-        juegoEnEjecucion,contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas = logica_bolsa_cestos(jugador,juegoEnEjecucion, bolsas, cesto_verde, cesto_negro, contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas)
+        juego_ejecutado,contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas = logica_bolsa_cestos(jugador,juego_ejecutado, bolsas, cesto_verde, cesto_negro, contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas)
         dibujar_ui(contador_bolsas_v, contador_bolsas_g, total_bolsas, bolsas_v_depositadas, bolsas_g_depositadas,minuts,seconds,miliseconds)
         dibujar_bolsas_y_cestos(pantalla)
         pygame.display.update()
-        clock.tick(60)
+        reloj.tick(60)
     # Ejecutar estas funciones cuando termine la partida 
     decision = guardar_partida(pantalla)
     if decision == "guardar":
@@ -338,19 +331,21 @@ def bucle_juego(pantalla):
 def main():
     pygame.init()
     pygame.font.init()
-    
+
     pantalla = inicializar_datos()
     menu_inicio = MenuInicio()
-    opcion_menu_inicio = menu_inicio.bucle_principal()
+    global menu_pausa
+    menu_pausa = MenuPausa(pantalla,menu_inicio)
+    while True:
+        opcion_menu_inicio = menu_inicio.bucle_principal()
+        if opcion_menu_inicio == "salir":
+            reiniciar_valores()
+            pygame.quit()
+            sys.exit()
 
-    if opcion_menu_inicio == "salir":
-        reiniciar_valores
-        pygame.quit()
-        sys.exit()
-
-    if opcion_menu_inicio == "jugar":
-        inicializar_juego()
-        bucle_juego(pantalla)
+        elif opcion_menu_inicio == "jugar":
+            inicializar_juego()
+            bucle_juego(pantalla)
 
 if __name__ == "__main__":
     main()
