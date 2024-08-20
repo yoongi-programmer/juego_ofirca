@@ -6,7 +6,6 @@ class MenuInicio:
     def __init__(self):
         print("Dibujando pantalla de menu inicio")
         self.pantalla = pygame.display.set_mode((1150, 640))
-        pygame.display.set_caption("Pantalla de Inicio del Juego")
 
         # Variables para los botones
         self.boton_empezar = pygame.Rect(190, 247, 300, 50)
@@ -61,6 +60,7 @@ class MenuInicio:
 
     def mostrar_informacion(self):
         # Cargar frames del GIF
+        pygame.display.set_caption("Instrucciones")
         frames_info = cargar_gif_fondo("img/instrucciones/frame0.png")
         frame_actual = 0
         self.fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 75)

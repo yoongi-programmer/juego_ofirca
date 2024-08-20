@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python -*- coding: utf-8 -*-
 import pygame
-import sys
 
 pygame.init()
 pygame.font.init()
@@ -25,7 +23,6 @@ def establecerParametrosGenerales():
     anchoBoton, altoBoton       = 100 ,150
     anchoBotonuai, altoBotonuai = 70 ,110
     # Carga las imagenes para los botnoes
-#"img/assets/UAIBOT.png","img/assets/bota.png","img/assets/uaibotino.png","img/assets/uaibotina.png"
     uaibotinoBoton = pygame.image.load("img/assets/UAIBOT.png").convert_alpha()
     uaibotinaBoton = pygame.image.load("img/assets/bota.png").convert_alpha()
     uaibotBoton    = pygame.image.load("img/assets/uaibotino.png").convert_alpha()
@@ -97,7 +94,3 @@ def main():
     robotSeleccionado=bucle_menu()
 
     return robotSeleccionado
-    
-
-
-

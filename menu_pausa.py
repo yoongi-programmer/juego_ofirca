@@ -2,6 +2,7 @@ import pygame
 import sys
 from utilidades import dibujar_texto, cargar_gif_fondo
 from menu_inicio import MenuInicio
+
 pygame.init
 
 class MenuPausa:
@@ -29,13 +30,13 @@ class MenuPausa:
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        print("pausa o despausa")
+                        print("mostrando menu de pausa")
                         return  # Salir del menú y reanudar el juego
                     if event.key == pygame.K_q:
                         # Volver al menú de inicio
-                        print("salir del juego")
-                        self.menu_inicio.bucle_principal()  # Llama al menú de inicio
-                        return  # Salir del menú de pausa
+                        print("saliendo del juego")
+                        
+                        return  "salir" # Salir del menú de pausa
 
             ahora = pygame.time.get_ticks()
             if ahora - self.ultimo_cambio > self.retraso_animacion:
