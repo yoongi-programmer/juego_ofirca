@@ -4,9 +4,8 @@ pygame.init()
 
 class MenuInicio:
     def __init__(self):
-        print("Dibujando pantalla de menu inicio")
+        #Dibujando pantalla de menu inicio
         self.pantalla = pygame.display.set_mode((1150, 640))
-
         # Variables para los botones
         self.boton_empezar = pygame.Rect(190, 247, 300, 50)
         self.boton_informacion = pygame.Rect(190, 349, 300, 50)

@@ -31,13 +31,13 @@ class MenuPausa:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         print("mostrando menu de pausa")
-                        return  # Salir del menú y reanudar el juego
+                        return  
                     if event.key == pygame.K_q:
-                        # Volver al menú de inicio
-                        print("saliendo del juego")
-                        
-                        return  "salir" # Salir del menú de pausa
-
+                        print("saliendo del juego") 
+                        return  "salir" # Volver al menú de inicio
+                    if event.key == pygame.K_r:
+                        return "continuar"
+                    
             ahora = pygame.time.get_ticks()
             if ahora - self.ultimo_cambio > self.retraso_animacion:
                 self.frame_actual = (self.frame_actual + 1) % len(self.frames)
@@ -51,6 +51,6 @@ class MenuPausa:
             pygame.draw.rect(self.pantalla, color_blanco, rect_reanudar, width=3)
             pygame.draw.rect(self.pantalla, color_blanco, rect_salir, width=3)
             dibujar_texto(self.pantalla, "PAUSA", fuente_title, color_blanco, pos_title[0], pos_title[1])
-            dibujar_texto(self.pantalla, "ESC para reanudar", fuente, color_blanco, pos_btn1[0], pos_btn1[1])
+            dibujar_texto(self.pantalla, "R para reanudar", fuente, color_blanco, pos_btn1[0], pos_btn1[1])
             dibujar_texto(self.pantalla, "Q para salir", fuente, color_blanco, pos_btn2[0], pos_btn2[1])
             pygame.display.flip()

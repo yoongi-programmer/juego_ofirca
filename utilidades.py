@@ -16,7 +16,6 @@ def cargar_gif_fondo(ruta_gif):
                 frame = pygame.image.load(ruta_frame).convert()
                 frames.append(frame)
                 i += 1
-                #print(i)
             else:
                 break
     except Exception as e:
