@@ -1,9 +1,9 @@
 #!/usr/bin/env python, -*- coding: utf-8 -*-
 import pygame #bajar la libreria desde la terminal
+import pygame_gui #bajar la libreria desde la terminal
 import sys
 import random
 import time
-import pygame_gui
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Cronometro
@@ -37,11 +37,10 @@ class Juego:
 
         # Datos del personaje
         self.nombre_personaje = 'UAIBOT'
-        self.rapidez_personaje = 7
         self.ruta_imagen = ["img/assets/UAIBOT.png", "img/assets/bota.png", "img/assets/uaibotino.png", "img/assets/uaibotina.png"]
         self.nombres = ['UAIBOT', 'BOTA', 'UAIBOTINO', 'UAIBOTINA']
-        self.velocidades = ['7', '6', '8', '8']
-        self.numRobot = [1, 2, 3, 4]
+        self.velocidades = [7, 7, 10.15, 10.15]#10.15 es el 45% mas que 7
+        self.num_robot = [1, 2, 3, 4]
         # Inicializar el juego
         self.inicializar_datos()
     #___________________CLASE JUGADOR___________________
@@ -154,7 +153,7 @@ class Juego:
                 self.Colisiones(580, 200, 40, 50)#colision arbol 2 central
         ]
         # Inicializar instancias de las clases
-        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.rapidez_personaje, self.numRobot[0], self.pantalla)
+        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla)
         self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 85), self.pantalla)
         self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 500), self.pantalla)
         bolsa_verde_1 = self.Bolsa("img/assets/BolsaVerde.png", posBolsaVerde1, "verde", self.pantalla)
@@ -254,7 +253,7 @@ class Juego:
                 self.nombres[personaje_elegido - 1],
                 self.pos_bot,
                 self.velocidades[personaje_elegido - 1],
-                self.numRobot[personaje_elegido - 1],
+                self.num_robot[personaje_elegido - 1],
                 self.pantalla
             )
         pygame.display.set_caption("Inicio")
