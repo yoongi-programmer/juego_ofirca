@@ -116,6 +116,7 @@ class Juego:
         self.tipografia_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.tipografia = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)        
         self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)
+        self.ruido_bolsa = pygame.mixer.Sound("img/assets/ruido_bolsa.mp3")
     #Funcion que genera posiciones aleatorias en zonas seguras
     def generar_posicion_aleatoria(self,zonas_seguras):
         while True:
@@ -263,6 +264,7 @@ class Juego:
             if self.jugador.rect.colliderect(bolsa.rect):
                 if self.contador_bolsas < self.jugador.carga_maxima:
                     self.contador_bolsas += 1
+                    self.ruido_bolsa.play()
                     if bolsa.tipo == "verde":
                         self.contador_bolsas_v += 1
                     elif bolsa.tipo == "gris":
