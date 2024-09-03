@@ -264,7 +264,9 @@ class Juego:
             if self.jugador.rect.colliderect(bolsa.rect):
                 if self.contador_bolsas < self.jugador.carga_maxima:
                     self.contador_bolsas += 1
+                    self.ruido_bolsa.set_volume(.2)
                     self.ruido_bolsa.play()
+                    
                     if bolsa.tipo == "verde":
                         self.contador_bolsas_v += 1
                     elif bolsa.tipo == "gris":
