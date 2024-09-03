@@ -308,9 +308,10 @@ class Juego:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
+                    # Cambiar de personaje cuando se presiona la tecla C
                     if event.key == pygame.K_c:
                         self.cambiar_personaje()
-
+                    # Poner el juego en pausa cuando se presiona la tecla ESC
                     elif event.key == pygame.K_ESCAPE:
                         self.juego_pausado = not self.juego_pausado
                         self.cronometro.detener()
@@ -319,6 +320,9 @@ class Juego:
                             self.menu_pausa.mostrar_menu(self.pantalla)
                             self.juego_pausado = False
                             return "pausa"
+                    # Reiniciar juego cuando se presiona  la tecla R
+                    elif event.key == pygame.K_r:
+                        self.inicializar_juego()
                             
             if not self.juego_pausado:
                 self.cronometro.iniciar()
