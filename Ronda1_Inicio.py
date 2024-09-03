@@ -54,7 +54,7 @@ class Juego:
                 self.carga_maxima = 2
             elif num_personaje == 2:
                 self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/bota.png").convert_alpha(), (pantalla.get_width() // 3, pantalla.get_height() // 0.5))
-                self.carga_maxima = 2
+                self.carga_maxima = 3
             elif num_personaje == 3:
                 self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotino.png").convert_alpha(), (pantalla.get_width() // 7, pantalla.get_height() // 2))
                 self.carga_maxima = 1
@@ -166,6 +166,7 @@ class Juego:
         self.bolsas.extend([bolsa_verde_1, bolsa_verde_2, bolsa_negra_1, bolsa_negra_2, bolsa_negra_3])
         self.cestos.extend([self.cesto_verde, self.cesto_negro])
         
+        self.contador_bolsas = 0
         self.contador_bolsas_v = 0
         self.contador_bolsas_g = 0
         self.bolsas_v_depositadas = 0
@@ -261,11 +262,12 @@ class Juego:
     def logica_bolsa_cestos(self):
         for bolsa in self.bolsas[:]:
             if self.jugador.rect.colliderect(bolsa.rect):
-                if bolsa.tipo == "verde" and self.contador_bolsas_v < self.jugador.carga_maxima:
-                    self.contador_bolsas_v += 1
-                    self.bolsas.remove(bolsa)
-                elif bolsa.tipo == "gris" and self.contador_bolsas_g < self.jugador.carga_maxima:
-                    self.contador_bolsas_g += 1
+                if self.contador_bolsas < self.jugador.carga_maxima:
+                    self.contador_bolsas += 1
+                    if bolsa.tipo == "verde":
+                        self.contador_bolsas_v += 1
+                    elif bolsa.tipo == "gris":
+                        self.contador_bolsas_g += 1
                     self.bolsas.remove(bolsa)
 
         velocidad = self.obtener_velocidad_jugador()
@@ -273,16 +275,18 @@ class Juego:
               if self.jugador.rect.colliderect(casa.rect):
                     self.jugador.rect.x -= velocidad[0]
                     self.jugador.rect.y -= velocidad[1]
-        # Depositar bolsas si se colisiona con un cesto
+        # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
             self.total_bolsas -= self.contador_bolsas_v
             self.bolsas_v_depositadas += self.contador_bolsas_v
             self.contador_bolsas_v = 0
+            self.contador_bolsas = 0
             
         if self.contador_bolsas_g > 0 and self.jugador.rect.colliderect(self.cesto_negro.rect):
             self.total_bolsas -= self.contador_bolsas_g
             self.bolsas_g_depositadas += self.contador_bolsas_g
             self.contador_bolsas_g = 0
+            self.contador_bolsas = 0
 
         if self.total_bolsas == 0:
             self.juego_ejecutado = False
