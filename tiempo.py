@@ -31,3 +31,19 @@ class Cronometro:
             segundos = int(self.tiempo_total % 60)
             milisegundos = int((self.tiempo_total * 100) % 100)
             return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}"
+        
+class temporizador:
+    def __init__(self) :
+        self.tiempo_inicio = 75
+        self.tiempo_total  = 0
+        self.tiempo_transcurriendo = False
+        
+    def iniciar(self):
+        pass
+    def detener():
+        pass
+    def restar_tiempo(self):
+        
+        pass
+            
+    
