@@ -7,6 +7,7 @@ import time
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Cronometro
+from tiempo import Temporizador
 import cambiar_personaje
 # Inicialización de Pygame
 pygame.init()
@@ -32,6 +33,7 @@ class Juego:
         self.juego_ejecutado = True
         self.juego_pausado = False
         self.cronometro = Cronometro()
+        self.temporizador= Temporizador()
         self.tiempo_total = "0:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
 
@@ -246,7 +248,8 @@ class Juego:
         return velocidad
     #Funcion para cambiar de personaje
     def cambiar_personaje(self):
-        self.cronometro.detener()
+        self.temporizador.detener()
+        #self.cronometro.detener()
         personaje_elegido = cambiar_personaje.main()
         if personaje_elegido in range(1, 5):
             self.jugador = self.Jugador(
@@ -318,7 +321,7 @@ class Juego:
                     # Poner el juego en pausa cuando se presiona la tecla ESC
                     elif event.key == pygame.K_ESCAPE:
                         self.juego_pausado = not self.juego_pausado
-                        self.cronometro.detener()
+                        self.temporizador.detener()
                         if self.juego_pausado:
                             pygame.display.set_caption("Menú de pausa")
                             self.menu_pausa.mostrar_menu(self.pantalla)
@@ -329,8 +332,14 @@ class Juego:
                         self.inicializar_juego()
                             
             if not self.juego_pausado:
-                self.cronometro.iniciar()
-                minuts, seconds, miliseconds = self.cronometro.actualizar_tiempo()
+                #self.cronometro.iniciar()
+                self.temporizador.iniciar()
+                #minuts, seconds, miliseconds = self.cronometro.actualizar_tiempo()
+                minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
+                if minuts == "00" and seconds == "00"and miliseconds == "00":
+                    resultadoPartida=0
+                    break 
+
                 velocidad = self.obtener_velocidad_jugador()
                 self.jugador.mover(velocidad)
                 self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
@@ -341,16 +350,20 @@ class Juego:
                 self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
                 pygame.display.update()
                 self.reloj.tick(60)
-
-        #Cuando termina el juego        
-        self.ganar()
-        decision = self.guardar_partida()
-        if decision == "guardar":
-            print("eligio guardar")
-            self.entrada_texto()
-        elif decision == "no_guardar":
-            print("eligio no guardar y va al main")
-            main()
+        if resultadoPartida==0:
+            print("perdiste como un pichón")
+            pygame.quit()
+            sys.exit()
+        #Cuando termina el juego
+        elif resultadoPartida==1:        
+            self.ganar()
+            decision = self.guardar_partida()
+            if decision == "guardar":
+                print("eligio guardar")
+                self.entrada_texto()
+            elif decision == "no_guardar":
+                print("eligio no guardar y va al main")
+                main()
 
     def guardar_partida(self):
         print("Guardar partida")
