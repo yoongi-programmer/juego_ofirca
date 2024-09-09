@@ -49,22 +49,29 @@ class Juego:
         # Inicializar listas para bolsas verdes y negras
         bolsas_verdes = []
         bolsas_grises = []
-        
+        self.obstaculos = []
+        obstaculos_img = ["img/assets/arbol1.png","img/assets/arbol2.png","img/assets/roca.png","img/assets/tronco.png"]
+        ancho = [50,60]
+        alto = [50,60]        
+        for _ in range(4):
+            imagen = random.choice(obstaculos_img)
+            posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
+            self.obstaculos.append(self.Obstaculos(imagen,posicion,self.pantalla))
         # Generar al menos 4 bolsas verdes y 4 bolsas grises
         for _ in range(4):
-            pos_bolsa_verde = self.generar_posicion_aleatoria()
+            pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
-            pos_bolsa_gris = self.generar_posicion_aleatoria()
+            pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
             print(f"pos bolsa v: {pos_bolsa_verde}, pos bolsa g: {pos_bolsa_gris}")
 
         # Generar las bolsas restantes (pueden ser verdes o grises)
         for _ in range(2):
             if random.choice([True, False]):
-                pos_bolsa_verde = self.generar_posicion_aleatoria()
+                pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
                 bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))
             else:
-                pos_bolsa_gris = self.generar_posicion_aleatoria()
+                pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
                 bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
 
         # Extender la lista de bolsas con las generadas
@@ -75,19 +82,19 @@ class Juego:
             super().__init__()
             self.carga_maxima = 1
             if num_personaje == 1:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/UAIBOT.png").convert_alpha(), (pantalla.get_width() // 10, pantalla.get_height() // 8))
+                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/UAIBOT.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 2
             elif num_personaje == 2:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/bota.png").convert_alpha(), (pantalla.get_width() // 3, pantalla.get_height() // 0.5))
+                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/bota.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 3
             elif num_personaje == 3:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotino.png").convert_alpha(), (pantalla.get_width() // 7, pantalla.get_height() // 2))
+                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotino.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 1
             elif num_personaje == 4:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotina.png").convert_alpha(), (pantalla.get_width() // 7, pantalla.get_height() // 2))
+                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotina.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 1
 
-            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 16, pantalla.get_height() // 8))
+            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 22, pantalla.get_height() // 10))
             self.rect = self.image.get_rect(topleft=posicion_inicial)
             self.nombre = nombre
             self.rapidez = int(rapidez)
@@ -112,7 +119,7 @@ class Juego:
     class Cesto(pygame.sprite.Sprite):
         def __init__(self, imagen, posicion, pantalla):
             super().__init__()
-            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 6))        
+            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 20, pantalla.get_height() // 8))        
             self.rect = self.image.get_rect(topleft=posicion)
         
         def dibujar(self, pantalla):
@@ -126,6 +133,14 @@ class Juego:
             self.tipo = tipo
 
         def dibujar(self, pantalla):
+            pantalla.blit(self.image, self.rect)
+    class Obstaculos(pygame.sprite.Sprite):
+        def __init__(self, imagen, posicion, pantalla):
+            super().__init__()
+            self.image =  pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 18, pantalla.get_height() // 8))
+            self.rect = self.image.get_rect(topleft=posicion)
+        
+        def dibujar (self, pantalla):
             pantalla.blit(self.image, self.rect)
     #___________________CLASE COLISIONES___________________
     class Colisiones:
@@ -150,26 +165,21 @@ class Juego:
         self.sonido_tempo = pygame.mixer.Sound("img/assets/reloj.mp3")
         self.musica_ganar = pygame.mixer.Sound("img/assets/musica_ganar.mp3")
     #Funcion que genera posiciones aleatorias en zonas seguras
-    def generar_posicion_aleatoria(self):
-        # Tamaño de la bolsa
-        ancho_bolsa = 50  
-        alto_bolsa = 50   
-
-        zona_seleccionada = random.choice(self.zonas_seguras) # Seleccionar una zona segura aleatoria
-        
+    def generar_posicion_aleatoria(self,ancho,alto,zonas):
+        zona_seleccionada = random.choice(zonas) # Seleccionar una zona segura aleatoria    
         # Generar una posición aleatoria dentro de la zona segura seleccionada
         posicion_valida = False
         while not posicion_valida:
             # Asegurarse de que la bolsa esté completamente dentro de los límites de la zona segura
-            pos_x = random.randint(zona_seleccionada.left, zona_seleccionada.right - ancho_bolsa)
-            pos_y = random.randint(zona_seleccionada.top, zona_seleccionada.bottom - alto_bolsa)
-            nueva_posicion = pygame.Rect(pos_x, pos_y, ancho_bolsa, alto_bolsa)
+            pos_x = random.randint(zona_seleccionada.left, zona_seleccionada.right - ancho)
+            pos_y = random.randint(zona_seleccionada.top, zona_seleccionada.bottom - alto)
+            nueva_posicion = pygame.Rect(pos_x, pos_y, ancho, alto)
             # Verificar que la nueva posición no colisione con otras bolsas o el jugador
             colisiona_con_bolsa = any(bolsa.rect.colliderect(nueva_posicion) for bolsa in self.bolsas)
             colisiona_con_jugador = self.jugador.rect.colliderect(nueva_posicion)
-        
+            colisiona_con_obstaculo = any(obstaculo.rect.colliderect(nueva_posicion) for obstaculo in self.obstaculos)
             # Verificar si la bolsa está dentro de la zona segura y no colisiona con otro objeto
-            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador:
+            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo:
                 posicion_valida = True
         return (pos_x, pos_y)
 
@@ -186,12 +196,20 @@ class Juego:
         pygame.Rect(300, 360, 300, 150),   # Zona segura 3 pasto casa
         pygame.Rect(169, 190, 120, 350),  # Zona segura 4 vertical
         pygame.Rect(640, 186, 100, 350)   # Zona segura 5 vertical
+        ]
+        self.zonas_obstaculos = [
+        pygame.Rect(280, 85, 370, 105),     # Zona segura 1 #left, top, width, height
+        pygame.Rect(170, 520, 650, 80),   # Zona segura 2 #horizontal abajo
+        pygame.Rect(800, 400, 300, 105),   # Zona segura 3 pasto casa
+        pygame.Rect(300, 360, 300, 150),   # Zona segura 3 pasto casa
+        pygame.Rect(169, 190, 120, 350),  # Zona segura 4 vertical
+        pygame.Rect(640, 186, 100, 350)   # Zona segura 5 vertical
         ]    
         # Posiciones random
         self.pos_bot = (100,90)
         self.zona_colision = [
-                self.Colisiones(0, 0, 550, 85), #colision arriba
-                self.Colisiones(700, 0, 450, 85), #colision arriba lado 2
+                self.Colisiones(0, 0, 550, 65), #colision arriba
+                self.Colisiones(700, 0, 450, 65), #colision arriba lado 2
                 self.Colisiones(0, 190, 169, 600),#colision izquierda
                 self.Colisiones(745, 196, 400, 184),#colision derecha
                 self.Colisiones(299, 190, 150, 130),#colision casa central
@@ -200,8 +218,8 @@ class Juego:
         ]
         # Inicializar instancias de las clases
         self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla)
-        self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 85), self.pantalla)
-        self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 500), self.pantalla)
+        self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 105), self.pantalla)
+        self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 520), self.pantalla)
         self.cestos.extend([self.cesto_verde, self.cesto_negro])
         # Inicializar objetos del juego usando la función 'inicializar_objetos'
         self.inicializar_objetos()
@@ -253,7 +271,7 @@ class Juego:
         pos_y = [15,240, 310, 500, 110,505,580]
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
-        #for zona in self.zonas_seguras:
+        #for zona in self.zonas_obstaculos:
         #    pygame.draw.rect(self.pantalla, self.color, zona)
      
         self.pantalla.blit(img_cargar_bolsas, (pos_x_img[0], pos_y_img[0]))
@@ -267,8 +285,7 @@ class Juego:
         self.dibujar_texto(cuenta_regresiva, self.fuente_grande, self.color_blanco, pos_x[3], pos_y[3])
         self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4])
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5])
-        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6])
-        
+        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6])        
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -276,6 +293,8 @@ class Juego:
             bolsa.dibujar(self.pantalla)
         for cesto in self.cestos:
             cesto.dibujar(self.pantalla)
+        for obstaculo in self.obstaculos:
+            obstaculo.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
     #Funcion para obtener la velovcidad del jugador y moverlo
     def obtener_velocidad_jugador(self):
@@ -320,10 +339,16 @@ class Juego:
                     self.bolsas.remove(bolsa)
 
         velocidad = self.obtener_velocidad_jugador()
+        # Hacer que el jugador choque con las colisiones y no pase a traves de ellas 
         for colision in self.zona_colision:
               if self.jugador.rect.colliderect(colision.rect):
                     self.jugador.rect.x -= velocidad[0]
                     self.jugador.rect.y -= velocidad[1]
+        for obstaculo in self.obstaculos:
+            if self.jugador.rect.colliderect(obstaculo.rect):
+                # Revertir la posición del jugador si colisiona con un obstáculo
+                self.jugador.rect.x -= velocidad[0]
+                self.jugador.rect.y -= velocidad[1]
         # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
             self.total_bolsas -= self.contador_bolsas_v
