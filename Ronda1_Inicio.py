@@ -229,7 +229,7 @@ class Juego:
         self.bolsas_v_depositadas = 0
         self.bolsas_g_depositadas = 0
         self.total_bolsas = len(self.bolsas)
-        self.temporizador.tiempo_restante = self.temporizador.duracion_inicial
+        self.temporizador.reiniciar()
         self.temporizador.iniciar()
         print(f"{self.temporizador.tiempo_inicio} ")
 

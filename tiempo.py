@@ -76,4 +76,9 @@ class Temporizador:
             minutos = int(self.tiempo_restante // 60)
             segundos = int(self.tiempo_restante % 60)
             milisegundos = int((self.tiempo_restante * 100) % 100)
-            return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}"  
+            return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}" 
+
+    def reiniciar(self):
+        # Restablecer el tiempo a la duración inicial y detener el temporizador
+        self.tiempo_restante = self.duracion_inicial
+        self.tiempo_transcurriendo = False
