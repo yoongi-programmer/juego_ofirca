@@ -32,6 +32,7 @@ class Juego:
         self.reloj = pygame.time.Clock()
         self.juego_ejecutado = True
         self.juego_pausado = False
+        self.temporizador= Temporizador()
         self.cronometro = Cronometro()
         self.tiempo_total = "0:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
@@ -63,7 +64,6 @@ class Juego:
             bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
             pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
-            print(f"pos bolsa v: {pos_bolsa_verde}, pos bolsa g: {pos_bolsa_gris}")
 
         # Generar las bolsas restantes (pueden ser verdes o grises)
         for _ in range(2):
@@ -178,6 +178,7 @@ class Juego:
             colisiona_con_bolsa = any(bolsa.rect.colliderect(nueva_posicion) for bolsa in self.bolsas)
             colisiona_con_jugador = self.jugador.rect.colliderect(nueva_posicion)
             colisiona_con_obstaculo = any(obstaculo.rect.colliderect(nueva_posicion) for obstaculo in self.obstaculos)
+
             # Verificar si la bolsa está dentro de la zona segura y no colisiona con otro objeto
             if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo:
                 posicion_valida = True
@@ -188,7 +189,16 @@ class Juego:
         self.bolsas = []
         self.cestos = []
         print("inicializando juego")
-        self.color = (255, 0, 0)
+        # Posiciones random
+        self.zona_colision = [
+                self.Colisiones(0, 0, 550, 65), #colision arriba
+                self.Colisiones(700, 0, 450, 65), #colision arriba lado 2
+                self.Colisiones(0, 190, 169, 600),#colision izquierda
+                self.Colisiones(745, 196, 400, 184),#colision derecha
+                self.Colisiones(299, 190, 150, 130),#colision casa central
+                self.Colisiones(460, 200, 40, 50),#colision arbol central
+                self.Colisiones(580, 200, 40, 50)#colision arbol 2 central
+        ]
         self.zonas_seguras = [
         pygame.Rect(20, 85, 950, 105),     # Zona segura 1 #left, top, width, height
         pygame.Rect(170, 520, 800, 100),   # Zona segura 2 #horizontal abajo
@@ -205,18 +215,8 @@ class Juego:
         pygame.Rect(169, 190, 120, 350),  # Zona segura 4 vertical
         pygame.Rect(640, 186, 100, 350)   # Zona segura 5 vertical
         ]    
-        # Posiciones random
-        self.pos_bot = (100,90)
-        self.zona_colision = [
-                self.Colisiones(0, 0, 550, 65), #colision arriba
-                self.Colisiones(700, 0, 450, 65), #colision arriba lado 2
-                self.Colisiones(0, 190, 169, 600),#colision izquierda
-                self.Colisiones(745, 196, 400, 184),#colision derecha
-                self.Colisiones(299, 190, 150, 130),#colision casa central
-                self.Colisiones(460, 200, 40, 50),#colision arbol central
-                self.Colisiones(580, 200, 40, 50)#colision arbol 2 central
-        ]
         # Inicializar instancias de las clases
+        self.pos_bot = (100,90)
         self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla)
         self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 105), self.pantalla)
         self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 520), self.pantalla)
@@ -229,10 +229,9 @@ class Juego:
         self.bolsas_v_depositadas = 0
         self.bolsas_g_depositadas = 0
         self.total_bolsas = len(self.bolsas)
-        self.cronometro.tiempo_inicio = 0  # Resetear tiempo de inicio
-        self.cronometro.tiempo_total = 0
-        self.cronometro.iniciar()
-        print(f"{self.cronometro.tiempo_inicio} , {self.cronometro.tiempo_total}")
+        self.temporizador.tiempo_restante = self.temporizador.duracion_inicial
+        self.temporizador.iniciar()
+        print(f"{self.temporizador.tiempo_inicio} ")
 
     #Funcion para dibujar texto
     def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y):
@@ -272,7 +271,7 @@ class Juego:
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
         #for zona in self.zonas_obstaculos:
-        #    pygame.draw.rect(self.pantalla, self.color, zona)
+        #    pygame.draw.rect(self.pantalla, self.color_blanco, zona)
      
         self.pantalla.blit(img_cargar_bolsas, (pos_x_img[0], pos_y_img[0]))
         self.pantalla.blit(img_cont_bolsas, (pos_x_img[1], pos_y_img[1]))
@@ -296,6 +295,9 @@ class Juego:
         for obstaculo in self.obstaculos:
             obstaculo.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
+    def reproducir_musica(self,sonido,volumen):
+        sonido.set_volume(volumen)
+        sonido.play()
     #Funcion para obtener la velovcidad del jugador y moverlo
     def obtener_velocidad_jugador(self):
         keys = pygame.key.get_pressed()
@@ -311,7 +313,7 @@ class Juego:
         return velocidad
     #Funcion para cambiar de personaje
     def cambiar_personaje(self):
-        self.cronometro.detener()
+        self.temporizador.detener()
         personaje_elegido = cambiar_personaje.main()
         if personaje_elegido in range(1, 5):
             self.jugador = self.Jugador(
@@ -329,9 +331,7 @@ class Juego:
             if self.jugador.rect.colliderect(bolsa.rect):
                 if self.contador_bolsas < self.jugador.carga_maxima:
                     self.contador_bolsas += 1
-                    self.sonido_bolsa.set_volume(.3)
-                    self.sonido_bolsa.play()
-                    
+                    self.reproducir_musica(self.sonido_bolsa,0.3)
                     if bolsa.tipo == "verde":
                         self.contador_bolsas_v += 1
                     elif bolsa.tipo == "gris":
@@ -351,16 +351,16 @@ class Juego:
                 self.jugador.rect.y -= velocidad[1]
         # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
-            self.total_bolsas -= self.contador_bolsas_v
-            self.bolsas_v_depositadas += self.contador_bolsas_v
+            self.total_bolsas -= self.contador_bolsas_v #al total le resto lo que va depositando
+            self.bolsas_v_depositadas += self.contador_bolsas_v #al contador del cesto le sumo lo que recolecto
+            self.contador_bolsas -= self.contador_bolsas_v  #al contador de bolsas le resto lo que deposito
             self.contador_bolsas_v = 0
-            self.contador_bolsas = 0
             
         if self.contador_bolsas_g > 0 and self.jugador.rect.colliderect(self.cesto_negro.rect):
             self.total_bolsas -= self.contador_bolsas_g
             self.bolsas_g_depositadas += self.contador_bolsas_g
+            self.contador_bolsas -= self.contador_bolsas_g
             self.contador_bolsas_g = 0
-            self.contador_bolsas = 0
 
         if self.total_bolsas == 0:
             self.juego_ejecutado = False
@@ -371,8 +371,7 @@ class Juego:
         img_victoria = pygame.transform.scale(img_victoria, (self.pantalla.get_width(), self.pantalla.get_height()))
 
         self.pantalla.blit(img_victoria, (0, 0))
-        self.musica_ganar.set_volume(.9)
-        self.musica_ganar.play()
+        self.reproducir_musica(self.musica_ganar,0.9)
         pygame.display.update()
         # Espera 3 segundos antes de salir
         time.sleep(3)    
@@ -391,7 +390,7 @@ class Juego:
                     # Poner el juego en pausa cuando se presiona la tecla ESC
                     elif event.key == pygame.K_ESCAPE:
                         self.juego_pausado = not self.juego_pausado
-                        self.cronometro.detener()
+                        self.temporizador.detener()
                         if self.juego_pausado:
                             pygame.display.set_caption("Menú de pausa")
                             self.menu_pausa.mostrar_menu(self.pantalla)
@@ -402,8 +401,13 @@ class Juego:
                         self.inicializar_juego()
                             
             if not self.juego_pausado:
-                self.cronometro.iniciar()
-                minuts, seconds, miliseconds = self.cronometro.actualizar_tiempo()
+                self.temporizador.iniciar()
+                minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
+                if minuts == "00" and seconds == "00"and miliseconds == "00":
+                    resultadoPartida = 0
+                    break 
+                else:
+                    resultadoPartida = 1
                 velocidad = self.obtener_velocidad_jugador()
                 self.jugador.mover(velocidad)
                 self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
@@ -417,14 +421,20 @@ class Juego:
                 self.reloj.tick(60)
 
         #Cuando termina el juego        
-        self.ganar()
-        decision = self.guardar_partida()
-        if decision == "guardar":
-            print("eligio guardar")
-            
-        elif decision == "no_guardar":
-            print("eligio no guardar y va al main")
-            main()
+        if resultadoPartida==0:
+            print("perdiste como un pichón")
+            pygame.quit()
+            sys.exit()
+        #Cuando termina el juego
+        elif resultadoPartida==1:        
+            self.ganar()
+            decision = self.guardar_partida()
+            if decision == "guardar":
+                print("eligio guardar")
+                self.entrada_texto()
+            elif decision == "no_guardar":
+                print("eligio no guardar y va al main")
+                main()
 
     def guardar_partida(self):
         print("Guardar partida")
