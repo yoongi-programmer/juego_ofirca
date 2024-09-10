@@ -25,6 +25,12 @@ class Juego:
         self.pantalla = pantalla
         self.menu_inicio = MenuInicio()
         self.menu_pausa = MenuPausa(self.pantalla, self.menu_inicio)
+        self.musica_inicio = self.Musica("img/assets/menu_inicio.mp3",-1,0.9)
+        self.musica_pausa = self.Musica("img/assets/pausa.mp3",-1,0.4)
+        self.musica_jugar = self.Musica("img/assets/jugar.mp3",-1,0.1)
+        self.musica_ganar = self.Musica("img/assets/musica_ganar.mp3",1,0.9)
+        self.sonido_bolsa = self.Musica("img/assets/sonido_bolsa.mp3",1,0.3)
+        self.sonido_reloj = self.Musica("img/assets/sonido_bolsa.mp3",-1,0.05)
         self.ancho_pantalla = 1150
         self.alto_pantalla = 640
         self.pantalla = pygame.display.set_mode((self.ancho_pantalla, self.alto_pantalla))
@@ -32,6 +38,7 @@ class Juego:
         self.reloj = pygame.time.Clock()
         self.juego_ejecutado = True
         self.juego_pausado = False
+        self.ingresando_nombre = True
         self.temporizador= Temporizador()
         self.cronometro = Cronometro()
         self.tiempo_total = "0:00:00"
@@ -134,6 +141,7 @@ class Juego:
 
         def dibujar(self, pantalla):
             pantalla.blit(self.image, self.rect)
+    #___________________CLASE OBSTACULOS___________________
     class Obstaculos(pygame.sprite.Sprite):
         def __init__(self, imagen, posicion, pantalla):
             super().__init__()
@@ -149,21 +157,38 @@ class Juego:
 
         def colisiona_con(self, otro_rect):
             return self.rect.colliderect(otro_rect)
+    #___________________CLASE MUSICA_______________________
+    class Musica:
+        def __init__(self,sonido,duracion,volumen):
+            self.sonido = pygame.mixer.Sound(sonido)
+            self.duracion = duracion
+            self.volumen = volumen
         
+        def reproducir(self):
+            self.sonido.set_volume(self.volumen)
+            self.sonido.play()
+
+        def reproducir_loop(self):
+            self.sonido.set_volume(self.volumen)
+            self.sonido.play(self.duracion)
+
+        def detener(self):
+            self.sonido.stop()
     #______________________________FUNCIONES DEL JUEGO________________________
     #Funcion que incializa los datos de graficos
     def inicializar_datos(self):
         self.img_fondo = pygame.transform.scale(pygame.image.load("img/fondo.jpg").convert_alpha(), (self.pantalla.get_width(), self.pantalla.get_height()))
+        # Cargar imágenes
+        self.img_recuadro_gris = pygame.transform.scale(pygame.image.load('img/recuadro_contador_gris.png').convert_alpha(), (50, 50))
+        self.img_recuadro_verde = pygame.transform.scale(pygame.image.load('img/recuadro_contador_verde.png').convert_alpha(), (50, 50))
+        self.img_cargar_bolsas = pygame.transform.scale(pygame.image.load('img/bolsas_cargadas.png').convert_alpha(), (100, 150))
+        self.img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (150, 170))
+        # Cargar fuentes
         self.fuente_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
         self.fuente_pequeña = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 17)  
         self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)
-        self.sonido_bolsa = pygame.mixer.Sound("img/assets/sonido_bolsa.mp3")
-        self.musica_inicio = pygame.mixer.Sound("img/assets/menu_inicio.mp3")
-        self.musica_pausa = pygame.mixer.Sound("img/assets/pausa.mp3")
-        self.musica_juego = pygame.mixer.Sound("img/assets/jugar.mp3")
-        self.sonido_tempo = pygame.mixer.Sound("img/assets/reloj.mp3")
-        self.musica_ganar = pygame.mixer.Sound("img/assets/musica_ganar.mp3")
+        
     #Funcion que genera posiciones aleatorias en zonas seguras
     def generar_posicion_aleatoria(self,ancho,alto,zonas):
         zona_seleccionada = random.choice(zonas) # Seleccionar una zona segura aleatoria    
@@ -183,7 +208,6 @@ class Juego:
             if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo:
                 posicion_valida = True
         return (pos_x, pos_y)
-
     #Funcion que incializa las estructuras de datos necesarias para el juego
     def inicializar_juego(self):
         self.bolsas = []
@@ -232,7 +256,6 @@ class Juego:
         self.temporizador.reiniciar()
         self.temporizador.iniciar()
         print(f"{self.temporizador.tiempo_inicio} ")
-
     #Funcion para dibujar texto
     def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y):
         texto_renderizado = tipografia.render(texto, True, color_texto)
@@ -252,10 +275,6 @@ class Juego:
         self.pantalla.blit(texto_renderizado, (pos_x, pos_y))
     #Funcion que dibuja la interfaz grafica
     def dibujar_ui(self):
-        # Cargar imágenes
-        img_recuadro = pygame.transform.scale(pygame.image.load('img/recuadro_contador.png').convert_alpha(), (50, 50))
-        img_cargar_bolsas = pygame.transform.scale(pygame.image.load('img/bolsas_cargadas.png').convert_alpha(), (100, 150))
-        img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (150, 170))
         marcador_bolsasv = str(self.contador_bolsas_v) #contador de bolsas verdes cargadas
         marcador_bolsasg = str(self.contador_bolsas_g) #contador  de bolsas grises cargadas
         cuenta_regresiva = str(self.total_bolsas) #contador total bolsas
@@ -264,19 +283,19 @@ class Juego:
 
         self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
         #Variables para las coordenadas y el tamaño de los recuadros
-        pos_x_img = [40, 13, 1090,1090]
-        pos_y_img = [230, 420, 105,500]
-        pos_x = [60,105, 105, 25, 1105,1105,800]
-        pos_y = [15,240, 310, 500, 110,505,580]
+        pos_x_img = [40, 13, 1070,1070]
+        pos_y_img = [230, 420, 125,530]
+        pos_x = [60,105, 105, 25, 1085,1085,800]
+        pos_y = [15,240, 310, 500, 128,533,580]
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
         #for zona in self.zonas_obstaculos:
         #    pygame.draw.rect(self.pantalla, self.color_blanco, zona)
      
-        self.pantalla.blit(img_cargar_bolsas, (pos_x_img[0], pos_y_img[0]))
-        self.pantalla.blit(img_cont_bolsas, (pos_x_img[1], pos_y_img[1]))
-        self.pantalla.blit(img_recuadro, (pos_x_img[2], pos_y_img[2]))
-        self.pantalla.blit(img_recuadro, (pos_x_img[3], pos_y_img[3]))
+        self.pantalla.blit(self.img_cargar_bolsas, (pos_x_img[0], pos_y_img[0]))
+        self.pantalla.blit(self.img_cont_bolsas, (pos_x_img[1], pos_y_img[1]))
+        self.pantalla.blit(self.img_recuadro_verde, (pos_x_img[2], pos_y_img[2]))
+        self.pantalla.blit(self.img_recuadro_gris, (pos_x_img[3], pos_y_img[3]))
         
         self.dibujar_texto(intro_texto, self.fuente_pequeña, self.color_blanco, pos_x[0], pos_y[0])
         self.dibujar_texto(marcador_bolsasv, self.fuente_mediana, self.color_blanco, pos_x[1], pos_y[1])
@@ -295,9 +314,6 @@ class Juego:
         for obstaculo in self.obstaculos:
             obstaculo.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
-    def reproducir_musica(self,sonido,volumen):
-        sonido.set_volume(volumen)
-        sonido.play()
     #Funcion para obtener la velovcidad del jugador y moverlo
     def obtener_velocidad_jugador(self):
         keys = pygame.key.get_pressed()
@@ -331,7 +347,7 @@ class Juego:
             if self.jugador.rect.colliderect(bolsa.rect):
                 if self.contador_bolsas < self.jugador.carga_maxima:
                     self.contador_bolsas += 1
-                    self.reproducir_musica(self.sonido_bolsa,0.3)
+                    self.sonido_bolsa.reproducir()
                     if bolsa.tipo == "verde":
                         self.contador_bolsas_v += 1
                     elif bolsa.tipo == "gris":
@@ -371,7 +387,7 @@ class Juego:
         img_victoria = pygame.transform.scale(img_victoria, (self.pantalla.get_width(), self.pantalla.get_height()))
 
         self.pantalla.blit(img_victoria, (0, 0))
-        self.reproducir_musica(self.musica_ganar,0.9)
+        self.musica_ganar.reproducir()
         pygame.display.update()
         # Espera 3 segundos antes de salir
         time.sleep(3)    
@@ -399,7 +415,9 @@ class Juego:
                     # Reiniciar juego cuando se presiona  la tecla R
                     elif event.key == pygame.K_r:
                         self.inicializar_juego()
-                            
+                        self.musica_jugar.detener()
+                        self.musica_jugar.reproducir_loop()
+            
             if not self.juego_pausado:
                 self.temporizador.iniciar()
                 minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
@@ -412,14 +430,15 @@ class Juego:
                 self.jugador.mover(velocidad)
                 self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                 self.logica_bolsa_cestos()
-
                 self.dibujar_ui()
-                #self.entrada_texto()
+                #if self.ingresando_nombre:                
+                #    self.entrada_texto()
                 self.actualizar()
                 self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
                 pygame.display.update()
                 self.reloj.tick(60)
 
+        self.musica_jugar.detener()
         #Cuando termina el juego        
         if resultadoPartida==0:
             print("perdiste como un pichón")
@@ -481,10 +500,8 @@ class Juego:
         )
         reloj = pygame.time.Clock()
         pygame.display.flip()
-
-        ventana_abierta = True  # Variable para controlar la ventana
-
-        while ventana_abierta:
+        
+        if self.ingresando_nombre:
             UI_REFRESH_RATE = reloj.tick(60) / 1000
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -492,8 +509,8 @@ class Juego:
                     sys.exit()
                 if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == '#main_text_entry':
                     texto_ingresado = event.text
+                    self.ingresando_nombre = False  # Termina el ingreso de nombre
                     self.otra_partida(texto_ingresado)  # Procesar el texto ingresado
-                    ventana_abierta = False  # Cerrar la ventana
 
                 manager.process_events(event)
             manager.update(UI_REFRESH_RATE)
@@ -508,36 +525,43 @@ class Juego:
         self.inicializar_juego()
         self.bucle_juego()  
 #___________________Funcion principal que maneja los estados del juego___________________
-def main():
-    
+def main():    
     pantalla = pygame.display.set_mode((1150, 640))
     juego = Juego(pantalla)
     menu_inicio = MenuInicio()
     menu_pausa = MenuPausa(pantalla, menu_inicio)
     estado = Estado.INICIO
-
-    while True:
+    
+    while True:        
         if estado == Estado.INICIO:
+            juego.musica_inicio.reproducir_loop()
             opcion_menu_inicio = menu_inicio.bucle_principal()
             if opcion_menu_inicio == "salir":
                 pygame.quit()
                 sys.exit()
             elif opcion_menu_inicio == "jugar":
+                juego.musica_inicio.detener()
                 estado = Estado.JUGANDO
 
         elif estado == Estado.JUGANDO:
             juego.inicializar_juego()
+            juego.musica_jugar.reproducir_loop()
             respuesta = juego.bucle_juego()
             if respuesta == "pausa":
+                juego.musica_jugar.detener()
                 estado = Estado.PAUSA
                 continue
 
         elif estado == Estado.PAUSA:
+            print("estado en pausa")
+            juego.musica_jugar.detener()
             opcion_menu_pausa = menu_pausa.mostrar_menu(pantalla)
             if opcion_menu_pausa == "continuar":
+                juego.musica_pausa.detener()
                 estado = Estado.JUGANDO
             elif opcion_menu_pausa == "salir":
                 estado = Estado.INICIO
+                juego.musica_pausa.detener()
             
 if __name__ == "__main__":
     main()
