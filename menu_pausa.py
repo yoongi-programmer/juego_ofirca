@@ -15,11 +15,11 @@ class MenuPausa:
         self.menu_inicio = menu_inicio  # Guardar referencia de la instancia del menú de inicio
 
     def mostrar_menu(self,pantalla):
-        fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 80)
-        fuente = pygame.font.Font("fonts/monocode/Monocode.ttf", 32)
+        fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
+        fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 32)
         recuadro = pygame.image.load("img/assets/recuadro_pausa.png")
         color_blanco = (255, 255, 255)
-        pos_title = (440, 100)
+        pos_title = (470, 100)
         pos_btn1 = (455, 303) #eje x, eje y
         pos_btn2 = (495, 397) #eje x, eje y
 

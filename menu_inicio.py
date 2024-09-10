@@ -14,8 +14,8 @@ class MenuInicio:
         self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png")
         self.frame_actual = 0
         # Fuentes y colores
-        self.fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 80)
-        self.fuente = pygame.font.Font("fonts/monocode/Monocode.ttf", 36)
+        self.fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
+        self.fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 36)
         self.color_blanco = (255, 255, 255)
         self.pos_title = (125, 100)
         self.pos_btn1 = (285, 255)
@@ -62,7 +62,6 @@ class MenuInicio:
         pygame.display.set_caption("Instrucciones")
         frames_info = cargar_gif_fondo("img/instrucciones/frame0.png")
         frame_actual = 0
-        self.fuente_title = pygame.font.Font("fonts/steiner2/Steiner.otf", 75)
 
         # Dibujar las instrucciones
         titulo = "Instrucciones"
