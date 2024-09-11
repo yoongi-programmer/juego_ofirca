@@ -38,6 +38,7 @@ class Juego:
         self.reloj = pygame.time.Clock()
         self.juego_ejecutado = True
         self.juego_pausado = False
+        self.nombre_jugador = ""
         self.ingresando_nombre = True
         self.temporizador= Temporizador()
         self.cronometro = Cronometro()
@@ -284,9 +285,9 @@ class Juego:
         self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
         #Variables para las coordenadas y el tamaño de los recuadros
         pos_x_img = [40, 13, 1070,1070]
-        pos_y_img = [230, 420, 125,530]
-        pos_x = [60,105, 105, 25, 1085,1085,800]
-        pos_y = [15,240, 310, 500, 128,533,580]
+        pos_y_img = [230, 420, 125,540]
+        pos_x = [60,105, 105, 25, 1085,1085,800,500]
+        pos_y = [15,240, 310, 500, 128,543,580,300] 
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
         #for zona in self.zonas_obstaculos:
@@ -303,7 +304,8 @@ class Juego:
         self.dibujar_texto(cuenta_regresiva, self.fuente_grande, self.color_blanco, pos_x[3], pos_y[3])
         self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4])
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5])
-        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6])        
+        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6])
+        self.dibujar_texto(self.nombre_jugador, self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7])        
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -419,22 +421,23 @@ class Juego:
                         self.musica_jugar.reproducir_loop()
             
             if not self.juego_pausado:
-                self.temporizador.iniciar()
-                minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
-                if minuts == "00" and seconds == "00"and miliseconds == "00":
-                    resultadoPartida = 0
-                    break 
+                self.dibujar_ui()                
+                if self.ingresando_nombre: #si es true pide que ingrese el nombre
+                    self.entrada_texto()
                 else:
-                    resultadoPartida = 1
-                velocidad = self.obtener_velocidad_jugador()
-                self.jugador.mover(velocidad)
-                self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
-                self.logica_bolsa_cestos()
-                self.dibujar_ui()
-                #if self.ingresando_nombre:                
-                #    self.entrada_texto()
-                self.actualizar()
-                self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
+                    self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
+                    minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
+                    if minuts == "00" and seconds == "00"and miliseconds == "00":
+                        resultadoPartida = 0
+                        break 
+                    else:
+                        resultadoPartida = 1
+                    velocidad = self.obtener_velocidad_jugador()
+                    self.jugador.mover(velocidad)
+                    self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
+                    self.logica_bolsa_cestos()
+                    self.actualizar()
+                    self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
                 pygame.display.update()
                 self.reloj.tick(60)
 
@@ -444,7 +447,6 @@ class Juego:
             print("perdiste como un pichón")
             pygame.quit()
             sys.exit()
-        #Cuando termina el juego
         elif resultadoPartida==1:        
             self.ganar()
             decision = self.guardar_partida()
@@ -454,6 +456,40 @@ class Juego:
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
                 main()
+    
+    def entrada_texto(self):
+        ancho_pantalla, alto_pantalla = 874, 521
+        self.ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
+        self.fondo_ingresar = pygame.transform.scale(pygame.image.load("img/ingresar.png").convert_alpha(), (ancho_pantalla, alto_pantalla))
+        # Dibujar ventana
+        self.ventana.blit(self.fondo_ingresar, (0, 0))
+        # Texto del nombre que el jugador va escribiendo
+        nombre_texto = self.fuente_pequeña.render(self.nombre_jugador, True, self.color_blanco)
+        self.ventana.blit(nombre_texto, (200, 240))
+
+        # Centramos la ventana
+        pos_x = (self.pantalla.get_width() - ancho_pantalla) // 2
+        pos_y = (self.pantalla.get_height() - alto_pantalla) // 2
+        self.pantalla.blit(self.ventana, (pos_x, pos_y))
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            if self.ingresando_nombre:
+                # Manejar el ingreso de texto
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_RETURN:  # Si presiona Enter
+                        self.ingresando_nombre = False  # Termina el ingreso de nombre
+                        return self.nombre_jugador
+                    elif evento.key == pygame.K_BACKSPACE:  # Borrar último carácter
+                        self.nombre_jugador = self.nombre_jugador[:-1]
+                    else:
+                        # Añadir la letra al nombre
+                        self.nombre_jugador += evento.unicode
+            pygame.display.flip()
+            self.reloj.tick(60)
 
     def guardar_partida(self):
         print("Guardar partida")
@@ -482,43 +518,6 @@ class Juego:
                     elif event.key == pygame.K_q:  # Salir del juego
                         pygame.quit()
                         sys.exit()
-
-    def entrada_texto(self):
-        ancho_pantalla, alto_pantalla = 874, 521
-        ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
-        pygame.display.set_caption("Guardar datos")
-
-        fondo_ingresar = pygame.transform.scale(pygame.image.load("img/ingresar.png").convert_alpha(), (ancho_pantalla, alto_pantalla))
-        ventana.blit(fondo_ingresar, (0, 0))
-        manager = pygame_gui.UIManager((ancho_pantalla, alto_pantalla))
-
-        # Creación de la caja de texto
-        text_input = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect((320, 280), (500, 50)),
-            manager=manager,
-            object_id='#main_text_entry'
-        )
-        reloj = pygame.time.Clock()
-        pygame.display.flip()
-        
-        if self.ingresando_nombre:
-            UI_REFRESH_RATE = reloj.tick(60) / 1000
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == '#main_text_entry':
-                    texto_ingresado = event.text
-                    self.ingresando_nombre = False  # Termina el ingreso de nombre
-                    self.otra_partida(texto_ingresado)  # Procesar el texto ingresado
-
-                manager.process_events(event)
-            manager.update(UI_REFRESH_RATE)
-            pos_x = (self.pantalla.get_width() - ancho_pantalla) // 2
-            pos_y = (self.pantalla.get_height() - alto_pantalla) // 2
-            self.pantalla.blit(ventana, (pos_x, pos_y))
-            manager.draw_ui(self.pantalla)
-            pygame.display.update()
 
     def otra_partida(self, texto):
         print(texto)
