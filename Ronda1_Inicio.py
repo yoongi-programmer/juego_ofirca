@@ -1,12 +1,10 @@
 #!/usr/bin/env python, -*- coding: utf-8 -*-
 import pygame #bajar la libreria desde la terminal
-import pygame_gui #bajar la libreria desde la terminal
 import sys
 import random
 import time
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
-from tiempo import Cronometro
 from tiempo import Temporizador
 import cambiar_personaje
 # Inicialización de Pygame
@@ -30,7 +28,9 @@ class Juego:
         self.musica_jugar = self.Musica("img/assets/jugar.mp3",-1,0.1)
         self.musica_ganar = self.Musica("img/assets/musica_ganar.mp3",1,0.9)
         self.sonido_bolsa = self.Musica("img/assets/sonido_bolsa.mp3",1,0.3)
-        self.sonido_reloj = self.Musica("img/assets/sonido_bolsa.mp3",-1,0.05)
+        self.sonido_reloj = self.Musica("img/assets/reloj.mp3",-1,0.1)
+        self.sonido_cesto = self.Musica("img/assets/sonido_cesto.mp3",1,0.9)
+        self.sonido_choque = self.Musica("img/assets/choque.mp3",1,0.7)
         self.ancho_pantalla = 1150
         self.alto_pantalla = 640
         self.pantalla = pygame.display.set_mode((self.ancho_pantalla, self.alto_pantalla))
@@ -41,7 +41,6 @@ class Juego:
         self.nombre_jugador = ""
         self.ingresando_nombre = True
         self.temporizador= Temporizador()
-        self.cronometro = Cronometro()
         self.tiempo_total = "0:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
 
@@ -72,7 +71,6 @@ class Juego:
             bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
             pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
-
         # Generar las bolsas restantes (pueden ser verdes o grises)
         for _ in range(2):
             if random.choice([True, False]):
@@ -81,7 +79,6 @@ class Juego:
             else:
                 pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
                 bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
-
         # Extender la lista de bolsas con las generadas
         self.bolsas.extend(bolsas_verdes + bolsas_grises)
     #___________________CLASE JUGADOR___________________
@@ -187,6 +184,7 @@ class Juego:
         # Cargar fuentes
         self.fuente_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
+        self.fuente_mediana2 = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 48)
         self.fuente_pequeña = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 17)  
         self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)
         
@@ -258,22 +256,22 @@ class Juego:
         self.temporizador.iniciar()
         print(f"{self.temporizador.tiempo_inicio} ")
     #Funcion para dibujar texto
-    def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y):
+    def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y,pantalla):
         texto_renderizado = tipografia.render(texto, True, color_texto)
         texto_borde = tipografia.render(texto, True, (0, 0, 0))  # Negro para el borde
 
         # Dibujar el borde del texto en las posiciones ligeramente desplazadas
-        self.pantalla.blit(texto_borde, (pos_x - 1, pos_y))  # Izquierda
-        self.pantalla.blit(texto_borde, (pos_x + 1, pos_y))  # Derecha
-        self.pantalla.blit(texto_borde, (pos_x, pos_y - 1))  # Arriba
-        self.pantalla.blit(texto_borde, (pos_x, pos_y + 1))  # Abajo
-        self.pantalla.blit(texto_borde, (pos_x - 1, pos_y - 1))  # Esquina superior izquierda
-        self.pantalla.blit(texto_borde, (pos_x + 1, pos_y - 1))  # Esquina superior derecha
-        self.pantalla.blit(texto_borde, (pos_x - 1, pos_y + 1))  # Esquina inferior izquierda
-        self.pantalla.blit(texto_borde, (pos_x + 1, pos_y + 1))  # Esquina inferior derecha
+        pantalla.blit(texto_borde, (pos_x - 1, pos_y))  # Izquierda
+        pantalla.blit(texto_borde, (pos_x + 1, pos_y))  # Derecha
+        pantalla.blit(texto_borde, (pos_x, pos_y - 1))  # Arriba
+        pantalla.blit(texto_borde, (pos_x, pos_y + 1))  # Abajo
+        pantalla.blit(texto_borde, (pos_x - 1, pos_y - 1))  # Esquina superior izquierda
+        pantalla.blit(texto_borde, (pos_x + 1, pos_y - 1))  # Esquina superior derecha
+        pantalla.blit(texto_borde, (pos_x - 1, pos_y + 1))  # Esquina inferior izquierda
+        pantalla.blit(texto_borde, (pos_x + 1, pos_y + 1))  # Esquina inferior derecha
 
         # Dibujar el texto principal sobre el borde
-        self.pantalla.blit(texto_renderizado, (pos_x, pos_y))
+        pantalla.blit(texto_renderizado, (pos_x, pos_y))
     #Funcion que dibuja la interfaz grafica
     def dibujar_ui(self):
         marcador_bolsasv = str(self.contador_bolsas_v) #contador de bolsas verdes cargadas
@@ -298,14 +296,14 @@ class Juego:
         self.pantalla.blit(self.img_recuadro_verde, (pos_x_img[2], pos_y_img[2]))
         self.pantalla.blit(self.img_recuadro_gris, (pos_x_img[3], pos_y_img[3]))
         
-        self.dibujar_texto(intro_texto, self.fuente_pequeña, self.color_blanco, pos_x[0], pos_y[0])
-        self.dibujar_texto(marcador_bolsasv, self.fuente_mediana, self.color_blanco, pos_x[1], pos_y[1])
-        self.dibujar_texto(marcador_bolsasg, self.fuente_mediana, self.color_blanco, pos_x[2], pos_y[2])
-        self.dibujar_texto(cuenta_regresiva, self.fuente_grande, self.color_blanco, pos_x[3], pos_y[3])
-        self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4])
-        self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5])
-        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6])
-        self.dibujar_texto(self.nombre_jugador, self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7])        
+        self.dibujar_texto(intro_texto, self.fuente_pequeña, self.color_blanco, pos_x[0], pos_y[0],self.pantalla)
+        self.dibujar_texto(marcador_bolsasv, self.fuente_mediana, self.color_blanco, pos_x[1], pos_y[1],self.pantalla)
+        self.dibujar_texto(marcador_bolsasg, self.fuente_mediana, self.color_blanco, pos_x[2], pos_y[2],self.pantalla)
+        self.dibujar_texto(cuenta_regresiva, self.fuente_grande, self.color_blanco, pos_x[3], pos_y[3],self.pantalla)
+        self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4],self.pantalla)
+        self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5],self.pantalla)
+        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla)
+        self.dibujar_texto(self.nombre_jugador[:10], self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -362,19 +360,22 @@ class Juego:
               if self.jugador.rect.colliderect(colision.rect):
                     self.jugador.rect.x -= velocidad[0]
                     self.jugador.rect.y -= velocidad[1]
+        # Revertir la posición del jugador si colisiona con un obstáculo
         for obstaculo in self.obstaculos:
             if self.jugador.rect.colliderect(obstaculo.rect):
-                # Revertir la posición del jugador si colisiona con un obstáculo
+                self.sonido_choque.reproducir()
                 self.jugador.rect.x -= velocidad[0]
                 self.jugador.rect.y -= velocidad[1]
         # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
+            self.sonido_cesto.reproducir()
             self.total_bolsas -= self.contador_bolsas_v #al total le resto lo que va depositando
             self.bolsas_v_depositadas += self.contador_bolsas_v #al contador del cesto le sumo lo que recolecto
             self.contador_bolsas -= self.contador_bolsas_v  #al contador de bolsas le resto lo que deposito
             self.contador_bolsas_v = 0
             
         if self.contador_bolsas_g > 0 and self.jugador.rect.colliderect(self.cesto_negro.rect):
+            self.sonido_cesto.reproducir()
             self.total_bolsas -= self.contador_bolsas_g
             self.bolsas_g_depositadas += self.contador_bolsas_g
             self.contador_bolsas -= self.contador_bolsas_g
@@ -442,11 +443,11 @@ class Juego:
                 self.reloj.tick(60)
 
         self.musica_jugar.detener()
+        self.sonido_reloj.detener()
+        time.sleep(2)
         #Cuando termina el juego        
         if resultadoPartida==0:
             print("perdiste como un pichón")
-            pygame.quit()
-            sys.exit()
         elif resultadoPartida==1:        
             self.ganar()
             decision = self.guardar_partida()
@@ -455,17 +456,21 @@ class Juego:
                 self.entrada_texto()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
-                main()
+        main()
     
     def entrada_texto(self):
         ancho_pantalla, alto_pantalla = 874, 521
         self.ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
-        self.fondo_ingresar = pygame.transform.scale(pygame.image.load("img/ingresar.png").convert_alpha(), (ancho_pantalla, alto_pantalla))
+        self.fondo_ingresar = pygame.transform.scale(pygame.image.load("img/fondo_ingresar.png").convert_alpha(), (ancho_pantalla, alto_pantalla))
+        titulo = "Ingresar Nombre de Jugador"
+        bienvenida = f"¡Bienvenido al futuro sustentable, {self.nombre_jugador}!"
+        bienvenida2 = "¿Listo para salvar el planeta reciclando?"
         # Dibujar ventana
         self.ventana.blit(self.fondo_ingresar, (0, 0))
+        self.dibujar_texto(titulo,self.fuente_mediana2,self.color_blanco,52,50,self.ventana)
         # Texto del nombre que el jugador va escribiendo
-        nombre_texto = self.fuente_pequeña.render(self.nombre_jugador, True, self.color_blanco)
-        self.ventana.blit(nombre_texto, (200, 240))
+        nombre_texto = self.fuente_mediana.render(self.nombre_jugador, True, self.color_blanco)
+        self.ventana.blit(nombre_texto, (200, 300))
 
         # Centramos la ventana
         pos_x = (self.pantalla.get_width() - ancho_pantalla) // 2
@@ -482,7 +487,10 @@ class Juego:
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_RETURN:  # Si presiona Enter
                         self.ingresando_nombre = False  # Termina el ingreso de nombre
-                        return self.nombre_jugador
+                        self.dibujar_texto(bienvenida, self.fuente_pequeña, self.color_blanco, 350, 470, self.pantalla)
+                        self.dibujar_texto(bienvenida2, self.fuente_pequeña, self.color_blanco, 350, 490, self.pantalla)
+                        pygame.display.flip()
+                        pygame.time.delay(5000)  
                     elif evento.key == pygame.K_BACKSPACE:  # Borrar último carácter
                         self.nombre_jugador = self.nombre_jugador[:-1]
                     else:
@@ -545,15 +553,16 @@ def main():
         elif estado == Estado.JUGANDO:
             juego.inicializar_juego()
             juego.musica_jugar.reproducir_loop()
+            juego.sonido_reloj.reproducir_loop()
             respuesta = juego.bucle_juego()
             if respuesta == "pausa":
-                juego.musica_jugar.detener()
                 estado = Estado.PAUSA
                 continue
 
         elif estado == Estado.PAUSA:
             print("estado en pausa")
             juego.musica_jugar.detener()
+            juego.sonido_reloj.detener()
             opcion_menu_pausa = menu_pausa.mostrar_menu(pantalla)
             if opcion_menu_pausa == "continuar":
                 juego.musica_pausa.detener()
