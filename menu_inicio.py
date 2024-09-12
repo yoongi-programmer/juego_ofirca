@@ -19,7 +19,7 @@ class MenuInicio:
         self.color_blanco = (255, 255, 255)
         self.pos_title = (125, 100)
         self.pos_btn1 = (285, 255)
-        self.pos_btn2 = (220, 357)
+        self.pos_btn2 = (210, 357)
         self.pos_btn3 = (285, 457)
 
     def bucle_principal(self):

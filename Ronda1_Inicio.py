@@ -48,8 +48,10 @@ class Juego:
         self.nombre_personaje = 'UAIBOT'
         self.ruta_imagen = ["img/assets/UAIBOT.png", "img/assets/bota.png", "img/assets/uaibotino.png", "img/assets/uaibotina.png"]
         self.nombres = ['UAIBOT', 'BOTA', 'UAIBOTINO', 'UAIBOTINA']
-        self.velocidades = [7, 7, 10.15, 10.15]#10.15 es el 45% mas que 7
+        self.velocidades = [7, 7, 10.15,14]#10.15 es el 45% mas que 7
         self.num_robot = [1, 2, 3, 4]
+        self.habilidad_atravesar_obs = False
+        self.habilidad_velocidad = False
         # Inicializar el juego
         self.inicializar_datos()
 
@@ -259,7 +261,6 @@ class Juego:
     def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y,pantalla):
         texto_renderizado = tipografia.render(texto, True, color_texto)
         texto_borde = tipografia.render(texto, True, (0, 0, 0))  # Negro para el borde
-
         # Dibujar el borde del texto en las posiciones ligeramente desplazadas
         pantalla.blit(texto_borde, (pos_x - 1, pos_y))  # Izquierda
         pantalla.blit(texto_borde, (pos_x + 1, pos_y))  # Derecha
@@ -269,7 +270,6 @@ class Juego:
         pantalla.blit(texto_borde, (pos_x + 1, pos_y - 1))  # Esquina superior derecha
         pantalla.blit(texto_borde, (pos_x - 1, pos_y + 1))  # Esquina inferior izquierda
         pantalla.blit(texto_borde, (pos_x + 1, pos_y + 1))  # Esquina inferior derecha
-
         # Dibujar el texto principal sobre el borde
         pantalla.blit(texto_renderizado, (pos_x, pos_y))
     #Funcion que dibuja la interfaz grafica
