@@ -69,6 +69,16 @@ def manejar_clicks(pos):
         return robot_elegido
     else:
         robot_elegido=5
+    # Revisa las entradas de texto 
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_1]:
+        robot_elegido = 1
+    elif keys[pygame.K_2]:
+        robot_elegido = 2
+    elif keys[pygame.K_3]:
+        robot_elegido = 3
+    elif keys[pygame.K_4]:
+        robot_elegido = 4
         return robot_elegido
 
 def bucle_menu():

@@ -40,6 +40,8 @@ class Temporizador:
         self.duracion_inicial = 75  # 75 segundos
         self.tiempo_restante = self.duracion_inicial
         self.tiempo_inicio = 0
+        self.tiempo_actual = 0
+        self.tiempo_pasado = 0
         self.tiempo_transcurriendo = False
         
     def iniciar(self):
@@ -58,18 +60,18 @@ class Temporizador:
     def restar_tiempo(self):
         if self.tiempo_transcurriendo:
             # Calcula el tiempo restante durante la cuenta regresiva
-            tiempo_pasado = time.time() - self.tiempo_inicio
-            tiempo_actual = self.tiempo_restante - tiempo_pasado
+            self.tiempo_pasado = time.time() - self.tiempo_inicio
+            self.tiempo_actual = self.tiempo_restante - self.tiempo_pasado
 
             # Si el tiempo llega a 0 o menos, el temporizador se detiene
-            if tiempo_actual <= 0:
+            if self.tiempo_actual <= 0:
                 self.tiempo_restante = 0
                 self.tiempo_transcurriendo = False
                 return "00", "00", "00"
             else:
-                minutos = int(tiempo_actual // 60)
-                segundos = int(tiempo_actual % 60)
-                milisegundos = int((tiempo_actual * 100) % 100)
+                minutos = int(self.tiempo_actual // 60)
+                segundos = int(self.tiempo_actual % 60)
+                milisegundos = int((self.tiempo_actual * 100) % 100)
                 return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}"
         else:
             # Devuelve el tiempo restante si el temporizador está detenido

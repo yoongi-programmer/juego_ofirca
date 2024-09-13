@@ -42,73 +42,39 @@ class Juego:
         self.ingresando_nombre = True
         self.temporizador= Temporizador()
         self.tiempo_total = "0:00:00"
-        self.tiempo_proximo_evento = random.randint(5, 15)
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
-
+        self.temporizador_habilidad = "5"
+        self.mostrar_velocidad = False
+        self.mostrar_atravesar = False
+        self.duracion_habilidad = 10
+        self.tiempo_habilidad_restante = 0
         # Datos del personaje
         self.nombre_personaje = 'UAIBOT'
         self.ruta_imagen = ["img/assets/UAIBOT.png", "img/assets/bota.png", "img/assets/uaibotino.png", "img/assets/uaibotina.png"]
         self.nombres = ['UAIBOT', 'BOTA', 'UAIBOTINO', 'UAIBOTINA']
-        self.velocidades = [7, 7, 10.15,14]#10.15 es el 45% mas que 7
+        self.ancho = [22,17,22,22]
+        self.alto = [10,5,10,10]
+        self.velocidades = [7, 7, 10.15,10.15,11]#10.15 es el 45% mas que 7
         self.num_robot = [1, 2, 3, 4]
         self.habilidad_atravesar_obs = False
         self.habilidad_velocidad = False
         # Inicializar el juego
         self.inicializar_datos()
-
-    def inicializar_objetos(self):    
-        # Inicializar listas para bolsas verdes y negras
-        bolsas_verdes = []
-        bolsas_grises = []
-        self.obstaculos = []
-        self.items = []
-        self.cofres = []  # Lista para almacenar los cofres
-        obstaculos_img = ["img/assets/arbol1.png","img/assets/arbol2.png","img/assets/roca.png","img/assets/tronco.png"]
-        self.items_img = ["img/assets/pocion.png","img/assets/escudo.png"]
-        ancho = [50,60]
-        alto = [50,60] 
-        # Generar los cofres de los que puede obtener habilidades
-        
-        # Generar los obstaculos con los que choca            
-        for _ in range(4):
-            imagen = random.choice(obstaculos_img)
-            posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
-            self.obstaculos.append(self.Obstaculos(imagen,posicion,self.pantalla))
-        # Generar al menos 4 bolsas verdes y 4 bolsas grises
-        for _ in range(4):
-            pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
-            bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
-            pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
-            bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
-        # Generar las bolsas restantes (pueden ser verdes o grises)
-        for _ in range(2):
-            if random.choice([True, False]):
-                pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
-                bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))
-            else:
-                pos_bolsa_gris = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
-                bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
-        # Extender la lista de bolsas con las generadas
-        self.bolsas.extend(bolsas_verdes + bolsas_grises)
     #___________________CLASE JUGADOR___________________
     class Jugador(pygame.sprite.Sprite):
-        def __init__(self, imagen, nombre, posicion_inicial, rapidez, num_personaje, pantalla, ):
+        def __init__(self, imagen, nombre, posicion_inicial, rapidez, num_personaje, pantalla,ancho,alto ):
             super().__init__()
             self.carga_maxima = 1
             if num_personaje == 1:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/UAIBOT.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 2
             elif num_personaje == 2:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/bota.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 3
             elif num_personaje == 3:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotino.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 1
             elif num_personaje == 4:
-                self.robot_actual = pygame.transform.scale(pygame.image.load("img/assets/uaibotina.png").convert_alpha(), (pantalla.get_width() // 15, pantalla.get_height() // 12))
                 self.carga_maxima = 1
 
-            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 22, pantalla.get_height() // 10))
+            self.image = pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // ancho, pantalla.get_height() // alto))
             self.rect = self.image.get_rect(topleft=posicion_inicial)
             self.nombre = nombre
             self.rapidez = int(rapidez)
@@ -150,11 +116,11 @@ class Juego:
             pantalla.blit(self.image, self.rect)
     #___________________CLASE OBSTACULOS___________________
     class Obstaculos(pygame.sprite.Sprite):
-        def __init__(self, imagen, posicion, pantalla):
+        def __init__(self, imagen, posicion, pantalla,ancho,alto,tipo):
             super().__init__()
-            self.image =  pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // 18, pantalla.get_height() // 8))
+            self.image =  pygame.transform.scale(pygame.image.load(imagen).convert_alpha(), (pantalla.get_width() // ancho, pantalla.get_height() // alto))
             self.rect = self.image.get_rect(topleft=posicion)
-        
+            self.tipo = tipo
         def dibujar (self, pantalla):
             pantalla.blit(self.image, self.rect)
     #___________________CLASE COLISIONES___________________
@@ -190,11 +156,14 @@ class Juego:
         self.img_recuadro_verde = pygame.transform.scale(pygame.image.load('img/recuadro_contador_verde.png').convert_alpha(), (50, 50))
         self.img_cargar_bolsas = pygame.transform.scale(pygame.image.load('img/bolsas_cargadas.png').convert_alpha(), (100, 150))
         self.img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (150, 170))
+        self.img_velocidad = pygame.transform.scale(pygame.image.load('img/velocidad.png').convert_alpha(), (120, 55))
+        self.img_atravesar = pygame.transform.scale(pygame.image.load('img/atravesar.png').convert_alpha(), (140, 55))
         # Cargar fuentes
         self.fuente_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
         self.fuente_mediana2 = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 48)
         self.fuente_pequeña = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 17)  
+        self.fuente_pequeña2 = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 25)  
         self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)     
     #Funcion que genera posiciones aleatorias en zonas seguras
     def generar_posicion_aleatoria(self,ancho,alto,zonas):
@@ -215,11 +184,40 @@ class Juego:
             if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo and not colisiona_con_cofre:
                 posicion_valida = True
         return (pos_x, pos_y)
+    #Funcion que inicializa los objetos a utilizar y sus posiciones
+    def inicializar_objetos(self):    
+        bolsas_verdes = []
+        bolsas_grises = []
+        self.obstaculos = []
+        self.items = []
+        self.cofres = []  # Lista para almacenar los cofres
+        obstaculos_img = ["img/assets/arbol1.png","img/assets/arbol2.png","img/assets/roca.png","img/assets/tronco.png"]
+        self.items_img = ["img/assets/pocion.png","img/assets/escudo.png"]
+        # Generar los obstaculos con los que choca            
+        for _ in range(4):
+            imagen = random.choice(obstaculos_img)
+            posicion = self.generar_posicion_aleatoria(40,40,self.zonas_obstaculos) ## ancho, alto, zonas
+            self.obstaculos.append(self.Obstaculos(imagen,posicion,self.pantalla,19,9,"obstaculo"))
+        # Generar al menos 4 bolsas verdes y 4 bolsas grises
+        for _ in range(4):
+            pos_bolsa_verde = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
+            bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
+            pos_bolsa_gris = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
+            bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
+        # Generar las bolsas restantes (pueden ser verdes o grises)
+        for _ in range(2):
+            if random.choice([True, False]):
+                pos_bolsa_verde = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
+                bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))
+            else:
+                pos_bolsa_gris = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
+                bolsas_grises.append(self.Bolsa("img/assets/BolsaGrisOscuro.png", pos_bolsa_gris, "gris", self.pantalla))
+        # Extender la lista de bolsas con las generadas
+        self.bolsas.extend(bolsas_verdes + bolsas_grises)
     #Funcion que incializa las estructuras de datos necesarias para el juego
     def inicializar_juego(self):
         self.bolsas = []
         self.cestos = []
-        print("inicializando juego")
         # Posiciones random
         self.zona_colision = [
                 self.Colisiones(0, 0, 550, 65), #colision arriba
@@ -239,16 +237,16 @@ class Juego:
         pygame.Rect(640, 186, 100, 350)   # Zona segura 5 vertical
         ]
         self.zonas_obstaculos = [
-        pygame.Rect(280, 85, 370, 105),     # Zona segura 1 #left, top, width, height
+        pygame.Rect(280, 85, 370, 55),     # Zona segura 1 #left, top, width, height
         pygame.Rect(170, 520, 650, 80),   # Zona segura 2 #horizontal abajo
         pygame.Rect(800, 400, 300, 105),   # Zona segura 3 pasto casa
         pygame.Rect(300, 360, 300, 150),   # Zona segura 3 pasto casa
-        pygame.Rect(169, 190, 120, 350),  # Zona segura 4 vertical
+        pygame.Rect(229, 190, 60, 350),  # Zona segura 4 vertical
         pygame.Rect(640, 186, 100, 350)   # Zona segura 5 vertical
         ]    
         # Inicializar instancias de las clases
         self.pos_bot = (100,90)
-        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla)
+        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla,self.ancho[0],self.alto[0])
         self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 105), self.pantalla)
         self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 520), self.pantalla)
         self.cestos.extend([self.cesto_verde, self.cesto_negro])
@@ -259,10 +257,13 @@ class Juego:
         self.contador_bolsas_g = 0
         self.bolsas_v_depositadas = 0
         self.bolsas_g_depositadas = 0
+        self.tiempo_proximo_evento = random.randint(60, 70)
+        self.duracion_habilidad_velocidad = 10  # segundos
+        self.duracion_habilidad_atravesar = 10  # segundos
+
+        print(f"{self.tiempo_proximo_evento}")
         self.total_bolsas = len(self.bolsas)
         self.temporizador.reiniciar()
-        self.temporizador.iniciar()
-        print(f"{self.temporizador.tiempo_inicio} ")
     #Funcion para dibujar texto
     def dibujar_texto(self, texto, tipografia, color_texto, pos_x, pos_y,pantalla):
         texto_renderizado = tipografia.render(texto, True, color_texto)
@@ -288,20 +289,31 @@ class Juego:
 
         self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
         #Variables para las coordenadas y el tamaño de los recuadros
-        pos_x_img = [40, 13, 1070,1070]
-        pos_y_img = [230, 420, 125,540]
-        pos_x = [60,105, 105, 25, 1085,1085,800,500]
-        pos_y = [15,240, 310, 500, 128,543,580,300] 
+        pos_x_img = [40, 13, 1070,1070,250,415]
+        pos_y_img = [230, 420, 125,540,15,15]
+        pos_x = [60,105, 105, 25, 1085,1085,800,20,220,390]
+        pos_y = [610,240, 310, 500, 128,543,15,18,20,20] 
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
         #for zona in self.zonas_obstaculos:
         #    pygame.draw.rect(self.pantalla, self.color_blanco, zona)
-     
         self.pantalla.blit(self.img_cargar_bolsas, (pos_x_img[0], pos_y_img[0]))
         self.pantalla.blit(self.img_cont_bolsas, (pos_x_img[1], pos_y_img[1]))
         self.pantalla.blit(self.img_recuadro_verde, (pos_x_img[2], pos_y_img[2]))
         self.pantalla.blit(self.img_recuadro_gris, (pos_x_img[3], pos_y_img[3]))
-        
+        if self.mostrar_velocidad:
+            tiempo_transcurrido = time.time() - self.habilidad_velocidad_tiempo
+            tiempo_restante = max(0, self.duracion_habilidad_velocidad - int(tiempo_transcurrido))
+            tiempo_restante = str(tiempo_restante)
+            self.pantalla.blit(self.img_velocidad, (pos_x_img[4],pos_y_img[4]))
+            self.dibujar_texto(tiempo_restante,self.fuente_pequeña,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
+        if self.mostrar_atravesar:
+            tiempo_transcurrido = time.time() - self.habilidad_atravesar_obs_tiempo
+            tiempo_restante = max(0, self.duracion_habilidad_atravesar - int(tiempo_transcurrido))
+            tiempo_restante = str(tiempo_restante)
+            self.pantalla.blit(self.img_atravesar, (pos_x_img[5],pos_y_img[5]))
+            self.dibujar_texto(tiempo_restante,self.fuente_pequeña2,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
+
         self.dibujar_texto(intro_texto, self.fuente_pequeña, self.color_blanco, pos_x[0], pos_y[0],self.pantalla)
         self.dibujar_texto(marcador_bolsasv, self.fuente_mediana, self.color_blanco, pos_x[1], pos_y[1],self.pantalla)
         self.dibujar_texto(marcador_bolsasg, self.fuente_mediana, self.color_blanco, pos_x[2], pos_y[2],self.pantalla)
@@ -309,7 +321,8 @@ class Juego:
         self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4],self.pantalla)
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5],self.pantalla)
         self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla)
-        self.dibujar_texto(self.nombre_jugador[:10], self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
+        if self.ingresando_nombre == False:
+            self.dibujar_texto(self.nombre_jugador[:10], self.fuente_pequeña2, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -320,37 +333,32 @@ class Juego:
         for obstaculo in self.obstaculos:
             obstaculo.dibujar(self.pantalla)
         for cofre in self.cofres:
-            print(f"dibujar cofres")
             cofre.dibujar(self.pantalla)
         for item in self.items:
-            print(f"dibujar items")
             item.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
 
     #Funcion para obtener la velovcidad del jugador y moverlo
     def actualizar_eventos_temporizador(self):
         # Verificar si ha pasado el tiempo para generar un cofre
-        tiempo_actual = self.temporizador.duracion_inicial - self.temporizador.tiempo_restante
-        print(f"{tiempo_actual,self.temporizador.duracion_inicial,self.temporizador.tiempo_restante}")
-        if tiempo_actual >= self.tiempo_proximo_evento:
-            posicion = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
-            self.cofres.append(self.Obstaculos("img/assets/cofre.png",posicion,self.pantalla))
-            print(f"agrego un cofre a la  lista de cofres")
-
+        if self.temporizador.tiempo_actual <= self.tiempo_proximo_evento:
+            posicion = self.generar_posicion_aleatoria(20,20,self.zonas_seguras)
+            self.cofres.append(self.Obstaculos("img/assets/cofre.png",posicion,self.pantalla,26,16,"cofre"))
             # Definir un nuevo tiempo aleatorio para el siguiente cofre
-            self.tiempo_proximo_evento = tiempo_actual + random.randint(5, 15)
+            self.tiempo_proximo_evento = self.temporizador.tiempo_actual - random.randint(10, 18)
+            print(f"proximo evento {self.tiempo_proximo_evento}")
 
-    def obtener_velocidad_jugador(self):
+    def obtener_velocidad_jugador(self,rapidez):
         keys = pygame.key.get_pressed()
         velocidad = [0, 0]
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            velocidad[0] = -self.jugador.rapidez
+            velocidad[0] = -rapidez
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            velocidad[0] = self.jugador.rapidez
+            velocidad[0] = rapidez
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            velocidad[1] = -self.jugador.rapidez
+            velocidad[1] = -rapidez
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            velocidad[1] = self.jugador.rapidez
+            velocidad[1] = rapidez
         return velocidad
     #Funcion para cambiar de personaje
     def cambiar_personaje(self):
@@ -363,7 +371,9 @@ class Juego:
                 self.pos_bot,
                 self.velocidades[personaje_elegido - 1],
                 self.num_robot[personaje_elegido - 1],
-                self.pantalla
+                self.pantalla,
+                self.ancho[personaje_elegido-1],
+                self.alto[personaje_elegido-1],
             )
         pygame.display.set_caption("Inicio")
     #Funcion que maneja la lógica de colisiones con bolsas y cestos
@@ -379,7 +389,10 @@ class Juego:
                         self.contador_bolsas_g += 1
                     self.bolsas.remove(bolsa)
 
-        velocidad = self.obtener_velocidad_jugador()
+        if self.habilidad_velocidad:
+            velocidad = self.obtener_velocidad_jugador(self.velocidades[4])
+        else:
+            velocidad = self.obtener_velocidad_jugador(self.jugador.rapidez)
         # Hacer que el jugador choque con las colisiones y no pase a traves de ellas 
         for colision in self.zona_colision:
               if self.jugador.rect.colliderect(colision.rect):
@@ -387,7 +400,7 @@ class Juego:
                     self.jugador.rect.y -= velocidad[1]
         # Revertir la posición del jugador si colisiona con un obstáculo
         for obstaculo in self.obstaculos:
-            if self.jugador.rect.colliderect(obstaculo.rect):
+            if self.jugador.rect.colliderect(obstaculo.rect) and self.habilidad_atravesar_obs == False:
                 self.sonido_choque.reproducir()
                 self.jugador.rect.x -= velocidad[0]
                 self.jugador.rect.y -= velocidad[1]
@@ -397,8 +410,33 @@ class Juego:
                 print(f"choco con un cofre")
                 self.cofres.remove(cofre)  # Eliminar cofre
                 imagen = random.choice(self.items_img)
-                posicion = cofre.x, cofre.y
-                self.items.append(self.Obstaculos(imagen,posicion,self.pantalla))
+                tipo = "pocion" if "pocion" in imagen else "escudo"
+                posicion = (cofre.rect.x + 10, cofre.rect.y + 10)
+                self.items.append(self.Obstaculos(imagen,posicion,self.pantalla,29,15,tipo))
+        
+        for item in self.items[:]:
+            if self.jugador.rect.colliderect(item):
+                if item.tipo == "pocion":
+                    print("item de velocidad")
+                    self.habilidad_velocidad = True 
+                    self.mostrar_velocidad = True
+                    self.habilidad_velocidad_tiempo = time.time()
+                    pygame.time.delay(1000)
+                    self.items.remove(item)
+                else:
+                    print("item de atravesar obs")
+                    self.habilidad_atravesar_obs = True
+                    self.mostrar_atravesar = True
+                    self.habilidad_atravesar_obs_tiempo = time.time()
+                    pygame.time.delay(1000)
+                    self.items.remove(item)
+        # Verificar si la habilidad de velocidad ha estado activa por más de 5 segundos
+        if self.habilidad_velocidad and (time.time() - self.habilidad_velocidad_tiempo > 10):
+            self.habilidad_velocidad = False  # Desactiva la habilidad de velocidad
+            self.mostrar_velocidad = False
+        if self.habilidad_atravesar_obs and (time.time() - self.habilidad_atravesar_obs_tiempo > 10):
+            self.habilidad_atravesar_obs = False  # Desactiva la habilidad de atravesar obstáculos
+            self.mostrar_atravesar = False
         # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
             self.sonido_cesto.reproducir()
@@ -466,7 +504,10 @@ class Juego:
                         break 
                     else:
                         resultadoPartida = 1
-                    velocidad = self.obtener_velocidad_jugador()
+                    if self.habilidad_velocidad:
+                        velocidad = self.obtener_velocidad_jugador(self.velocidades[4])
+                    else:
+                        velocidad = self.obtener_velocidad_jugador(self.jugador.rapidez)
                     self.jugador.mover(velocidad)
                     self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                     self.logica_bolsa_cestos()
@@ -515,16 +556,15 @@ class Juego:
             if evento.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            
             if self.ingresando_nombre:
                 # Manejar el ingreso de texto
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_RETURN:  # Si presiona Enter
-                        self.ingresando_nombre = False  # Termina el ingreso de nombre
-                        self.dibujar_texto(bienvenida, self.fuente_pequeña, self.color_blanco, 350, 470, self.pantalla)
-                        self.dibujar_texto(bienvenida2, self.fuente_pequeña, self.color_blanco, 350, 490, self.pantalla)
+                        self.dibujar_texto(bienvenida, self.fuente_pequeña2, self.color_blanco, 280, 470, self.pantalla)
+                        self.dibujar_texto(bienvenida2, self.fuente_pequeña2, self.color_blanco, 290, 495, self.pantalla)
                         pygame.display.flip()
-                        pygame.time.delay(5000)  
+                        pygame.time.delay(3000)
+                        self.ingresando_nombre = False  # Termina el ingreso de nombre  
                     elif evento.key == pygame.K_BACKSPACE:  # Borrar último carácter
                         self.nombre_jugador = self.nombre_jugador[:-1]
                     else:

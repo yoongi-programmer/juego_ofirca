@@ -1,0 +1,35 @@
+Primera Ronda:
+Funciones Añadidas al Juego
+-	Interfaz de Menú Principal:
+	•	Al inicio del juego, se mostrará un menú con las siguientes opciones:
+	•	Jugar: Iniciar una nueva partida.
+	•	Instrucciones: Mostrar las reglas del juego.
+	•	Salir: Cerrar el juego.
+-	Interfaz y Función de Pausa:
+	•	Implementar una opción que permita pausar el juego en cualquier momento, ofreciendo una interfaz que indique que el juego está en pausa.
+	•	Implementar otra opción que permita salir del juego y te mande al menú de inicio.
+-	Cronómetro en la Partida:
+	•	Añadir un cronómetro que registre el tiempo transcurrido durante la sesión de juego.
+	•	Posiciones Aleatorias de las Bolsas:
+-	Dinamismo en la partida
+	•	Las posiciones de las bolsas dentro del escenario deben generarse aleatoriamente al inicio de cada partida.
+-	Colisiones en el Escenario:
+	•	Implementar la lógica necesaria para gestionar las colisiones entre el jugador y los objetos dentro del escenario.
+Segunda Ronda:
+Funciones añadidas al juego
+-	Música:
+	•	Música añadida a los menús y distintos momentos del juego como cuando gana o pierde el jugador.
+	•	Efectos de sonido añadidos para cuando colisiona con bolsas, cestos y obstáculos.
+-	Realismo en la partida:
+	•	Se cambió las paredes que aparecen de forma aleatoria por objetos como árboles, rocas o troncos, para que quede mejor con el fondo, 
+		y además estos se generan de forma aleatoria en cuanto a objetos.
+-	Habilidades al jugador:
+	•	Generación de cofres en momentos aleatorios en la partida.
+	•	Al colisionar con los cofres, aparecerá un ítem que dará dos habilidades. 
+	•	Habilidad 1: Poción que da más velocidad (dura 5 segundos)
+	•	Habilidad 2: Escudo que permite atravesar los obstáculos (dura 5 segundos)
+-	Sistema de puntaje:
+	•	Se guarda el nombre del jugador, el tiempo que tardó y en base a eso se genera una tabla de puntaje de los 10 mejores.
+-	Gráficos realizados por el mismo equipo. 
+	•	El fondo del juego fue realizado por el equipo en el programa RPG Maker. 
+	•	Los objetos como bolsas, cestos y letreros por un programa pixel art.
