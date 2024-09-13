@@ -14,7 +14,7 @@ def convertir_a_segundos(tiempo_str):
     total_segundos = horas * 3600 + minutos * 60 + segundos
     return total_segundos
 
-def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=5):
+def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=10):
     """
     Extrae las mejores marcas desde los archivos y las devuelve ordenadas.
     """
@@ -34,7 +34,7 @@ def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=5):
     # Ordenar por tiempo en segundos (ascendente)
     marcas_ordenadas = sorted(marcas, key=lambda x: x[1])
 
-    # Devolver las mejores marcas
+    # Devolver las mejores 10 marcas (o las que estén disponibles)
     return marcas_ordenadas[:num_mejores]
 
 def mostrar_mejores_marcas(pantalla, mejores_marcas):
@@ -76,8 +76,8 @@ def main():
     pantalla = pygame.display.set_mode((400, 400))
     pygame.display.set_caption("Mejores Marcas")
 
-    # Obtener las mejores marcas
-    mejores_marcas = extraer_mejores_marcas(ruta_nombres, ruta_tiempos)
+    # Obtener las mejores marcas (máximo 10)
+    mejores_marcas = extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=10)
     
     # Mostrar las mejores marcas en la ventana
     mostrar_mejores_marcas(pantalla, mejores_marcas)
