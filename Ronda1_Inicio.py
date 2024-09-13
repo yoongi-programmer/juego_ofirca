@@ -7,6 +7,8 @@ from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Temporizador
 import cambiar_personaje
+import archivos
+import mejores_tiempos
 # Inicialización de Pygame
 pygame.init()
 pygame.font.init()
@@ -463,6 +465,8 @@ class Juego:
             decision = self.guardar_partida()
             if decision == "guardar":
                 print("eligio guardar")
+                archivos.main(self.nombre_jugador,self.tiempo_total )
+                mejores_tiempos.main()
                 self.entrada_texto()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
