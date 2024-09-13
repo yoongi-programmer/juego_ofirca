@@ -23,14 +23,14 @@ class Juego:
         self.pantalla = pantalla
         self.menu_inicio = MenuInicio()
         self.menu_pausa = MenuPausa(self.pantalla, self.menu_inicio)
-        self.musica_inicio = self.Musica("img/assets/menu_inicio.mp3",-1,0.9)
-        self.musica_pausa = self.Musica("img/assets/pausa.mp3",-1,0.4)
-        self.musica_jugar = self.Musica("img/assets/jugar.mp3",-1,0.1)
-        self.musica_ganar = self.Musica("img/assets/musica_ganar.mp3",1,0.9)
-        self.sonido_bolsa = self.Musica("img/assets/sonido_bolsa.mp3",1,0.3)
-        self.sonido_reloj = self.Musica("img/assets/reloj.mp3",-1,0.1)
-        self.sonido_cesto = self.Musica("img/assets/sonido_cesto.mp3",1,0.9)
-        self.sonido_choque = self.Musica("img/assets/choque.mp3",1,0.7)
+        self.musica_inicio = self.Musica("sonidos/menu_inicio.mp3",-1,0.9)
+        self.musica_pausa = self.Musica("sonidos/pausa.mp3",-1,0.4)
+        self.musica_jugar = self.Musica("sonidos/jugar.mp3",-1,0.1)
+        self.musica_ganar = self.Musica("sonidos/musica_ganar.mp3",1,0.9)
+        self.sonido_bolsa = self.Musica("sonidos/sonido_bolsa.mp3",1,0.3)
+        self.sonido_reloj = self.Musica("sonidos/reloj.mp3",-1,0.1)
+        self.sonido_cesto = self.Musica("sonidos/sonido_cesto.mp3",1,0.9)
+        self.sonido_choque = self.Musica("sonidos/choque.mp3",1,0.7)
         self.ancho_pantalla = 1150
         self.alto_pantalla = 640
         self.pantalla = pygame.display.set_mode((self.ancho_pantalla, self.alto_pantalla))
@@ -42,6 +42,7 @@ class Juego:
         self.ingresando_nombre = True
         self.temporizador= Temporizador()
         self.tiempo_total = "0:00:00"
+        self.tiempo_proximo_evento = random.randint(5, 15)
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
 
         # Datos del personaje
@@ -61,23 +62,19 @@ class Juego:
         bolsas_grises = []
         self.obstaculos = []
         self.items = []
+        self.cofres = []  # Lista para almacenar los cofres
         obstaculos_img = ["img/assets/arbol1.png","img/assets/arbol2.png","img/assets/roca.png","img/assets/tronco.png"]
-        items_img = ["img/assets/pocion.png","img/assets/escudo.png"]
-        momento_aleatorio = ["00:05:00","00:27:00","01:0:00","00:05:00","00:05:00","00:05:00"]
+        self.items_img = ["img/assets/pocion.png","img/assets/escudo.png"]
         ancho = [50,60]
         alto = [50,60] 
+        # Generar los cofres de los que puede obtener habilidades
         
-        for _ in range(2):
-            imagen = random.choice(items_img)
-            posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
-            self.items.append(self.Obstaculos(imagen,posicion,self.pantalla))
-                    
+        # Generar los obstaculos con los que choca            
         for _ in range(4):
             imagen = random.choice(obstaculos_img)
             posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
             self.obstaculos.append(self.Obstaculos(imagen,posicion,self.pantalla))
         # Generar al menos 4 bolsas verdes y 4 bolsas grises
-        
         for _ in range(4):
             pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
@@ -198,8 +195,7 @@ class Juego:
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
         self.fuente_mediana2 = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 48)
         self.fuente_pequeña = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 17)  
-        self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)
-        
+        self.color_blanco, self.color_negro, = (255, 255, 255), (0, 0, 0)     
     #Funcion que genera posiciones aleatorias en zonas seguras
     def generar_posicion_aleatoria(self,ancho,alto,zonas):
         zona_seleccionada = random.choice(zonas) # Seleccionar una zona segura aleatoria    
@@ -214,9 +210,9 @@ class Juego:
             colisiona_con_bolsa = any(bolsa.rect.colliderect(nueva_posicion) for bolsa in self.bolsas)
             colisiona_con_jugador = self.jugador.rect.colliderect(nueva_posicion)
             colisiona_con_obstaculo = any(obstaculo.rect.colliderect(nueva_posicion) for obstaculo in self.obstaculos)
-            colisiona_con_item = any(item.rect.colliderect(nueva_posicion) for item in self.items)
+            colisiona_con_cofre = any(cofre.rect.colliderect(nueva_posicion) for cofre in self.cofres)
             # Verificar si la bolsa está dentro de la zona segura y no colisiona con otro objeto
-            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo and not colisiona_con_item:
+            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo and not colisiona_con_cofre:
                 posicion_valida = True
         return (pos_x, pos_y)
     #Funcion que incializa las estructuras de datos necesarias para el juego
@@ -323,8 +319,27 @@ class Juego:
             cesto.dibujar(self.pantalla)
         for obstaculo in self.obstaculos:
             obstaculo.dibujar(self.pantalla)
+        for cofre in self.cofres:
+            print(f"dibujar cofres")
+            cofre.dibujar(self.pantalla)
+        for item in self.items:
+            print(f"dibujar items")
+            item.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
+
     #Funcion para obtener la velovcidad del jugador y moverlo
+    def actualizar_eventos_temporizador(self):
+        # Verificar si ha pasado el tiempo para generar un cofre
+        tiempo_actual = self.temporizador.duracion_inicial - self.temporizador.tiempo_restante
+        print(f"{tiempo_actual,self.temporizador.duracion_inicial,self.temporizador.tiempo_restante}")
+        if tiempo_actual >= self.tiempo_proximo_evento:
+            posicion = self.generar_posicion_aleatoria(50,50,self.zonas_seguras)
+            self.cofres.append(self.Obstaculos("img/assets/cofre.png",posicion,self.pantalla))
+            print(f"agrego un cofre a la  lista de cofres")
+
+            # Definir un nuevo tiempo aleatorio para el siguiente cofre
+            self.tiempo_proximo_evento = tiempo_actual + random.randint(5, 15)
+
     def obtener_velocidad_jugador(self):
         keys = pygame.key.get_pressed()
         velocidad = [0, 0]
@@ -376,6 +391,14 @@ class Juego:
                 self.sonido_choque.reproducir()
                 self.jugador.rect.x -= velocidad[0]
                 self.jugador.rect.y -= velocidad[1]
+        
+        for cofre in self.cofres[:]:
+            if self.jugador.rect.colliderect(cofre):
+                print(f"choco con un cofre")
+                self.cofres.remove(cofre)  # Eliminar cofre
+                imagen = random.choice(self.items_img)
+                posicion = cofre.x, cofre.y
+                self.items.append(self.Obstaculos(imagen,posicion,self.pantalla))
         # Depositar bolsas si se colisiona con un cesto dependiendo el color
         if self.contador_bolsas_v > 0 and self.jugador.rect.colliderect(self.cesto_verde.rect):
             self.sonido_cesto.reproducir()
@@ -448,6 +471,7 @@ class Juego:
                     self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                     self.logica_bolsa_cestos()
                     self.actualizar()
+                    self.actualizar_eventos_temporizador()
                     self.tiempo_total = str(self.minuts)+":"+str(self.seconds)+":"+str(self.miliseconds)
                 pygame.display.update()
                 self.reloj.tick(60)
