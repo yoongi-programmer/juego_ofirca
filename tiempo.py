@@ -34,7 +34,7 @@ class Cronometro:
 
 class Temporizador:
     def __init__(self):
-        self.duracion_inicial = 5  # 75 segundos
+        self.duracion_inicial = 15  # 75 segundos
         self.tiempo_restante = self.duracion_inicial
         self.tiempo_inicio = 0
         self.tiempo_transcurriendo = False
@@ -62,15 +62,20 @@ class Temporizador:
             if tiempo_actual <= 0:
                 self.tiempo_restante = 0
                 self.tiempo_transcurriendo = False
-                return "00", "00", "00"
+                return "00", "00", "00","0%"
             else:
                 minutos = int(tiempo_actual // 60)
                 segundos = int(tiempo_actual % 60)
                 milisegundos = int((tiempo_actual * 100) % 100)
-                return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}"
+
+                porcentaje= (tiempo_actual/self.duracion_inicial)*100
+
+                return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}",f"{porcentaje:.2f}"
         else:
             # Devuelve el tiempo restante si el temporizador está detenido
             minutos = int(self.tiempo_restante // 60)
             segundos = int(self.tiempo_restante % 60)
             milisegundos = int((self.tiempo_restante * 100) % 100)
-            return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}"
+            porcentaje= (tiempo_actual/self.duracion_inicial)*100
+
+            return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}",f"{porcentaje:.2f}"

@@ -9,6 +9,9 @@ from menu_inicio import MenuInicio
 from tiempo import Cronometro
 from tiempo import Temporizador
 import cambiar_personaje
+import archivos 
+import Ronda1_Inicio
+
 # Inicialización de Pygame
 pygame.init()
 pygame.font.init()
@@ -19,6 +22,28 @@ class Estado:
     PAUSA = 3
     SALIR = 4
 
+class barra_carga_decremental:
+    def __init__(self, pantalla, posicion, tamano, color, tiempo_total):
+        # Inicializa la barra de carga
+        self.pantalla = pantalla            # Superficie de pygame donde se dibujará la barra de carga.
+        self.posicion = posicion            # (x, y) posición inicial de la barra en la ventana.
+        self.tamano = tamano                # Tamaño de la barra.
+        self.color = color                  # Color de la barra.
+        self.tiempo_total = tiempo_total    # Tiempo total en segundos para que la barra se vacíe.
+        self.ancho_inicial = tamano[0]      # Ancho inicial de la barra.
+
+    def actualizar(self, porcentaje_restante):
+        # Calcula el ancho de la barra basado en el porcentaje restante del temporizador
+        nuevo_ancho = int(self.ancho_inicial * (porcentaje_restante / 100))
+        self.tamano = (nuevo_ancho, self.tamano[1])
+
+    def dibujar(self):
+        # Dibuja la barra de carga en la pantalla.
+        pygame.draw.rect(self.pantalla, self.color, (*self.posicion, *self.tamano))
+
+    def ha_terminado(self):
+        # Verifica si la barra de carga ha terminado.
+        return self.tamano[0] <= 0
 class Juego:
     def __init__(self, pantalla):
         self.estado = Estado.INICIO
@@ -34,8 +59,10 @@ class Juego:
         self.juego_pausado = False
         self.cronometro = Cronometro()
         self.temporizador= Temporizador()
-        self.tiempo_total = "0:00:00"
+        self.tiempo_total = "00:00:00"
+        self.porcentaje_total = "00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
+        self.barra_carga = barra_carga_decremental(self.pantalla, (550, 550), (300, 75), (255, 0, 0), 10)  # Barra roja, duración 10 segundos
 
         # Datos del personaje
         self.nombre_personaje = 'UAIBOT'
@@ -46,6 +73,23 @@ class Juego:
         # Inicializar el juego
         self.inicializar_datos()
     #___________________CLASE JUGADOR___________________
+    def dibujar_porcentaje_sobre_barra(self):
+        """
+        Dibuja el porcentaje de tiempo restante sobre la barra decremental.
+        """
+        # Obtener la posición de la barra de carga
+        pos_x_barra, pos_y_barra = self.barra_carga.posicion
+        
+        # Preparar el texto del porcentaje
+        texto_porcentaje = f"{self.porcentaje_total}%"
+        
+        # Ajustar la posición del texto para centrarlo sobre la barra
+        texto_ancho, texto_alto = self.tipografia.size(texto_porcentaje)  # Obtener tamaño del texto
+        pos_x_texto = pos_x_barra + (self.barra_carga.tamano[0] // 2) - (texto_ancho // 2)
+        pos_y_texto = pos_y_barra + (self.barra_carga.tamano[1] // 2) - (texto_alto // 2)
+        
+        # Dibujar el texto del porcentaje sobre la barra
+        self.dibujar_texto(texto_porcentaje, self.tipografia, self.color_blanco, pos_x_texto, pos_y_texto)
     class Jugador(pygame.sprite.Sprite):
         def __init__(self, imagen, nombre, posicion_inicial, rapidez, num_personaje, pantalla, ):
             super().__init__()
@@ -196,35 +240,46 @@ class Juego:
         self.pantalla.blit(texto_renderizado, (pos_x, pos_y))
     #Funcion que dibuja la interfaz grafica
     def dibujar_ui(self):
+        """
+        Dibuja la interfaz del usuario en la pantalla.
+        """
         # Cargar imágenes
         img_texto = pygame.transform.scale(pygame.image.load('img/intro_text.png').convert_alpha(), (1100, 30))
         img_recuadro = pygame.transform.scale(pygame.image.load('img/recuadro_contador.png').convert_alpha(), (50, 50))
         img_cargar_bolsas = pygame.transform.scale(pygame.image.load('img/bolsas_cargadas.png').convert_alpha(), (100, 150))
         img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (130, 170))
-        marcador_bolsasv = str(self.contador_bolsas_v) #contador de bolsas verdes cargadas
-        marcador_bolsasg = str(self.contador_bolsas_g) #contador  de bolsas grises cargadas
-        cuenta_regresiva = str(self.total_bolsas) #contador total bolsas
-        cestos_v_contador = str(self.bolsas_v_depositadas) #contador  de bolsas verdes depositadas
-        cestos_n_contador =  str(self.bolsas_g_depositadas) #contador  de bolsas grises depositadas
+        marcador_bolsasv = str(self.contador_bolsas_v)
+        marcador_bolsasg = str(self.contador_bolsas_g)
+        cuenta_regresiva = str(self.total_bolsas)
+        cestos_v_contador = str(self.bolsas_v_depositadas)
+        cestos_n_contador = str(self.bolsas_g_depositadas)
 
-        self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
-        #Variables para las coordenadas y el tamaño de los recuadros
-        pos_x_img = [15, 40, 20, 1090,1090]
-        pos_y_img = [15, 230, 420, 105,500]
-        pos_x = [105, 105, 35, 1105,1105,800]
-        pos_y = [240, 310, 500, 110,505,580]
+        # Dibujar fondo y elementos de la interfaz
+        self.pantalla.blit(self.img_fondo, (0, 0))
+        pos_x_img = [15, 40, 20, 1090, 1090]
+        pos_y_img = [15, 230, 420, 105, 500]
+        pos_x = [105, 105, 35, 1105, 1105, 800, 550]
+        pos_y = [240, 310, 500, 110, 505, 580, 550]
         self.pantalla.blit(img_texto, (pos_x_img[0], pos_y_img[0]))
         self.pantalla.blit(img_cargar_bolsas, (pos_x_img[1], pos_y_img[1]))
         self.pantalla.blit(img_cont_bolsas, (pos_x_img[2], pos_y_img[2]))
         self.pantalla.blit(img_recuadro, (pos_x_img[3], pos_y_img[3]))
         self.pantalla.blit(img_recuadro, (pos_x_img[4], pos_y_img[4]))
-        
+
         self.dibujar_texto(marcador_bolsasv, self.tipografia, self.color_blanco, pos_x[0], pos_y[0])
         self.dibujar_texto(marcador_bolsasg, self.tipografia, self.color_blanco, pos_x[1], pos_y[1])
         self.dibujar_texto(cuenta_regresiva, self.tipografia_grande, self.color_blanco, pos_x[2], pos_y[2])
         self.dibujar_texto(cestos_v_contador, self.tipografia, self.color_blanco, pos_x[3], pos_y[3])
         self.dibujar_texto(cestos_n_contador, self.tipografia, self.color_blanco, pos_x[4], pos_y[4])
-        self.dibujar_texto(self.tiempo_total, self.tipografia, self.color_blanco, pos_x[5], pos_y[5])    
+        self.dibujar_texto(self.tiempo_total, self.tipografia, self.color_blanco, pos_x[5], pos_y[5])
+        
+        # **Dibuja la barra de carga primero**
+        self.barra_carga.dibujar()
+
+        # **Dibuja el porcentaje sobre la barra de carga después**
+        self.dibujar_porcentaje_sobre_barra()
+
+
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -307,7 +362,9 @@ class Juego:
         # Espera 3 segundos antes de salir
         time.sleep(3)    
     #Funcion principal que maneja todos los eventos del juego en un bucle
+
     def bucle_juego(self):
+        self.resultado_partida = None
         while self.juego_ejecutado:
             pygame.display.set_caption("Juego en ejecución")
             for event in pygame.event.get():
@@ -315,10 +372,8 @@ class Juego:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    # Cambiar de personaje cuando se presiona la tecla C
                     if event.key == pygame.K_c:
                         self.cambiar_personaje()
-                    # Poner el juego en pausa cuando se presiona la tecla ESC
                     elif event.key == pygame.K_ESCAPE:
                         self.juego_pausado = not self.juego_pausado
                         self.temporizador.detener()
@@ -327,43 +382,52 @@ class Juego:
                             self.menu_pausa.mostrar_menu(self.pantalla)
                             self.juego_pausado = False
                             return "pausa"
-                    # Reiniciar juego cuando se presiona  la tecla R
                     elif event.key == pygame.K_r:
                         self.inicializar_juego()
-                            
+
             if not self.juego_pausado:
-                #self.cronometro.iniciar()
                 self.temporizador.iniciar()
-                #minuts, seconds, miliseconds = self.cronometro.actualizar_tiempo()
-                minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
-                if minuts == "00" and seconds == "00"and miliseconds == "00":
-                    resultadoPartida=0
-                    break 
+                minuts, seconds, miliseconds, porcentajeRestante = self.temporizador.restar_tiempo()
+
+                if minuts == "00" and seconds == "00" and miliseconds == "00":
+                    self.resultado_partida = 0
+                    break
 
                 velocidad = self.obtener_velocidad_jugador()
                 self.jugador.mover(velocidad)
                 self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                 self.logica_bolsa_cestos()
 
+                # Actualizar barra de carga con porcentaje restante
+                self.barra_carga.actualizar(float(porcentajeRestante))
+
+                # Dibujar elementos del juego
+                self.pantalla.fill((0, 0, 0))
                 self.dibujar_ui()
                 self.actualizar()
-                self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
+
+                self.tiempo_total = str(minuts) + ":" + str(seconds) + ":" + str(miliseconds)
+                self.porcentaje_total = f"{porcentajeRestante}"  # Formato del porcentaje
+
                 pygame.display.update()
                 self.reloj.tick(60)
-        if resultadoPartida==0:
-            print("perdiste como un pichón")
-            pygame.quit()
-            sys.exit()
-        #Cuando termina el juego
-        elif resultadoPartida==1:        
-            self.ganar()
-            decision = self.guardar_partida()
-            if decision == "guardar":
-                print("eligio guardar")
-                self.entrada_texto()
-            elif decision == "no_guardar":
-                print("eligio no guardar y va al main")
-                main()
+
+            if self.resultado_partida == 0:
+                print("Perdiste como un pichón")
+                pygame.quit()
+                sys.exit()
+            elif self.resultado_partida == 1:        
+                self.ganar()
+                decision = self.guardar_partida()
+                if decision == "guardar":
+                    print("Eligió guardar")
+                    self.entrada_texto()
+                    nombreJugador = "pepe"
+                    archivos.main(nombreJugador, self.tiempo_total)
+                elif decision == "no_guardar":
+                    print("Eligió no guardar y va al main")
+                    main()
+
 
     def guardar_partida(self):
         print("Guardar partida")
