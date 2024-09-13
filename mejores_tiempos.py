@@ -1,6 +1,19 @@
 import pygame
 import os
 
+def convertir_a_segundos(tiempo_str):
+    """
+    Convierte un string en formato HH:MM:SS a segundos.
+    """
+    partes = tiempo_str.split(':')  # Divide la cadena en horas, minutos y segundos
+    horas = int(partes[0])
+    minutos = int(partes[1])
+    segundos = int(partes[2])
+    
+    # Convertir todo a segundos
+    total_segundos = horas * 3600 + minutos * 60 + segundos
+    return total_segundos
+
 def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=5):
     """
     Extrae las mejores marcas desde los archivos y las devuelve ordenadas.
@@ -9,9 +22,17 @@ def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=5):
     nombres = archivosLectores(ruta_nombres)
     tiempos = archivosLectores(ruta_tiempos)
     
-    # Crear una lista de tuplas (nombre, tiempo) y ordenar por tiempo (convertido a float)
-    marcas = list(zip(nombres, map(float, tiempos)))
-    marcas_ordenadas = sorted(marcas, key=lambda x: x[1])  # Ordenar por tiempo ascendente
+    # Crear una lista de tuplas (nombre, tiempo en segundos)
+    marcas = []
+    for nombre, tiempo in zip(nombres, tiempos):
+        try:
+            tiempo_segundos = convertir_a_segundos(tiempo)  # Convertir HH:MM:SS a segundos
+            marcas.append((nombre, tiempo_segundos))
+        except ValueError:
+            print(f"Advertencia: No se pudo convertir '{tiempo}' a segundos. Se omitirá.")
+    
+    # Ordenar por tiempo en segundos (ascendente)
+    marcas_ordenadas = sorted(marcas, key=lambda x: x[1])
 
     # Devolver las mejores marcas
     return marcas_ordenadas[:num_mejores]
@@ -30,7 +51,13 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
 
     # Mostrar las mejores marcas
     for i, (nombre, tiempo) in enumerate(mejores_marcas):
-        texto = f"{i + 1}. {nombre}: {tiempo:.2f}s"
+        # Convertir de nuevo a formato HH:MM:SS para mostrarlo
+        horas = int(tiempo // 3600)
+        minutos = int((tiempo % 3600) // 60)
+        segundos = int(tiempo % 60)
+        tiempo_formateado = f"{horas:02}:{minutos:02}:{segundos:02}"
+        
+        texto = f"{i + 1}. {nombre}: {tiempo_formateado}"
         texto_renderizado = fuente.render(texto, True, (255, 255, 255))
         pantalla.blit(texto_renderizado, (20, 60 + i * 30))
 
@@ -65,9 +92,11 @@ def main():
     pygame.quit()
 
 def archivosLectores(archivo):
-    archivo = open(archivo,"r")
-    contenido=[linea.strip() for linea in archivo]
-    archivo.close()
+    """
+    Lee un archivo de texto y devuelve su contenido como una lista de líneas.
+    """
+    with open(archivo, "r") as f:
+        contenido = [linea.strip() for linea in f]
     return contenido
 
 main()
