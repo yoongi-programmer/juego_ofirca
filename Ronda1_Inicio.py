@@ -60,14 +60,24 @@ class Juego:
         bolsas_verdes = []
         bolsas_grises = []
         self.obstaculos = []
+        self.items = []
         obstaculos_img = ["img/assets/arbol1.png","img/assets/arbol2.png","img/assets/roca.png","img/assets/tronco.png"]
+        items_img = ["img/assets/pocion.png","img/assets/escudo.png"]
+        momento_aleatorio = ["00:05:00","00:27:00","01:0:00","00:05:00","00:05:00","00:05:00"]
         ancho = [50,60]
-        alto = [50,60]        
+        alto = [50,60] 
+        
+        for _ in range(2):
+            imagen = random.choice(items_img)
+            posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
+            self.items.append(self.Obstaculos(imagen,posicion,self.pantalla))
+                    
         for _ in range(4):
             imagen = random.choice(obstaculos_img)
             posicion = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_obstaculos)
             self.obstaculos.append(self.Obstaculos(imagen,posicion,self.pantalla))
         # Generar al menos 4 bolsas verdes y 4 bolsas grises
+        
         for _ in range(4):
             pos_bolsa_verde = self.generar_posicion_aleatoria(ancho[0],alto[0],self.zonas_seguras)
             bolsas_verdes.append(self.Bolsa("img/assets/BolsaVerde.png", pos_bolsa_verde, "verde", self.pantalla))    
@@ -204,9 +214,9 @@ class Juego:
             colisiona_con_bolsa = any(bolsa.rect.colliderect(nueva_posicion) for bolsa in self.bolsas)
             colisiona_con_jugador = self.jugador.rect.colliderect(nueva_posicion)
             colisiona_con_obstaculo = any(obstaculo.rect.colliderect(nueva_posicion) for obstaculo in self.obstaculos)
-
+            colisiona_con_item = any(item.rect.colliderect(nueva_posicion) for item in self.items)
             # Verificar si la bolsa está dentro de la zona segura y no colisiona con otro objeto
-            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo:
+            if zona_seleccionada.contains(nueva_posicion) and not colisiona_con_bolsa and not colisiona_con_jugador and not colisiona_con_obstaculo and not colisiona_con_item:
                 posicion_valida = True
         return (pos_x, pos_y)
     #Funcion que incializa las estructuras de datos necesarias para el juego
@@ -427,8 +437,8 @@ class Juego:
                     self.entrada_texto()
                 else:
                     self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
-                    minuts, seconds, miliseconds = self.temporizador.restar_tiempo()
-                    if minuts == "00" and seconds == "00"and miliseconds == "00":
+                    self.minuts, self.seconds, self.miliseconds = self.temporizador.restar_tiempo()
+                    if self.minuts == "00" and self.seconds == "00"and self.miliseconds == "00":
                         resultadoPartida = 0
                         break 
                     else:
@@ -438,7 +448,7 @@ class Juego:
                     self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                     self.logica_bolsa_cestos()
                     self.actualizar()
-                    self.tiempo_total = str(minuts)+":"+str(seconds)+":"+str(miliseconds)
+                    self.tiempo_total = str(self.minuts)+":"+str(self.seconds)+":"+str(self.miliseconds)
                 pygame.display.update()
                 self.reloj.tick(60)
 
