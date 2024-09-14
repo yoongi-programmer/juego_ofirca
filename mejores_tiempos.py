@@ -32,7 +32,7 @@ def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=10):
             print(f"Advertencia: No se pudo convertir '{tiempo}' a segundos. Se omitirá.")
     
     # Ordenar por tiempo en segundos (ascendente)
-    marcas_ordenadas = sorted(marcas, key=lambda x: x[1])
+    marcas_ordenadas = sorted(marcas, key=lambda x: x[1],reverse=True)
 
     # Devolver las mejores 10 marcas (o las que estén disponibles)
     return marcas_ordenadas[:num_mejores]
