@@ -11,7 +11,6 @@ from pyvidplayer import Video
 import cambiar_personaje
 import archivos
 
-
 # Inicialización de Pygame
 pygame.init()
 pygame.font.init()
@@ -21,7 +20,28 @@ class Estado:
     JUGANDO = 2
     PAUSA = 3
     SALIR = 4
+class BarraCargaDecremental:
+    def __init__(self, pantalla, posicion, tamano, color, tiempo_total):
+        # Inicializa la barra de carga
+        self.pantalla = pantalla            # Superficie de pygame donde se dibujará la barra de carga.
+        self.posicion = posicion            # (x, y) posición inicial de la barra en la ventana.
+        self.tamano = tamano                # Tamaño de la barra.
+        self.color = color                  # Color de la barra.
+        self.tiempo_total = tiempo_total    # Tiempo total en segundos para que la barra se vacíe.
+        self.ancho_inicial = tamano[0]      # Ancho inicial de la barra.
 
+    def actualizar(self, porcentaje_restante):
+        # Calcula el ancho de la barra basado en el porcentaje restante del temporizador
+        nuevo_ancho = int(self.ancho_inicial * (porcentaje_restante / 100))
+        self.tamano = (nuevo_ancho, self.tamano[1])
+
+    def dibujar(self):
+        # Dibuja la barra de carga en la pantalla.
+        pygame.draw.rect(self.pantalla, self.color, (*self.posicion, *self.tamano))
+
+    def ha_terminado(self):
+        # Verifica si la barra de carga ha terminado.
+        return self.tamano[0] <= 0
 class Juego:
     def __init__(self, pantalla):
         self.estado = Estado.INICIO
@@ -48,6 +68,8 @@ class Juego:
         self.temporizador= Temporizador()
         self.tiempo_total = "0:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
+        self.porcentaje_total = "00"
+        self.barra_carga = BarraCargaDecremental(self.pantalla, (550, 550), (300, 75), (255, 0, 0), 10)  # Barra roja, duración 10 segundos
         self.temporizador_habilidad = "5"
         self.mostrar_velocidad = False
         self.mostrar_atravesar = False
@@ -284,6 +306,15 @@ class Juego:
         pantalla.blit(texto_borde, (pos_x + 1, pos_y + 1))  # Esquina inferior derecha
         # Dibujar el texto principal sobre el borde
         pantalla.blit(texto_renderizado, (pos_x, pos_y))
+    def dibujar_porcentaje_sobre_barra(self):
+        #Dibuja el porcentaje de tiempo restante sobre la barra decremental.
+        pos_x_barra, pos_y_barra = self.barra_carga.posicion # Obtener la posición de la barra de carga
+        # Preparar el texto del porcentaje
+        texto_porcentaje = f"{self.porcentaje_total}%"
+        texto_ancho, texto_alto = self.fuente_mediana2.size(texto_porcentaje)  # Obtener tamaño del texto
+        pos_x_texto = pos_x_barra + (self.barra_carga.tamano[0] // 2) - (texto_ancho // 2)
+        pos_y_texto = pos_y_barra + (self.barra_carga.tamano[1] // 2) - (texto_alto // 2)
+        self.dibujar_texto(texto_porcentaje, self.fuente_pequeña2, self.color_blanco, pos_x_texto, pos_y_texto,self.pantalla)
     #Funcion que dibuja la interfaz grafica
     def dibujar_ui(self):
         marcador_bolsasv = str(self.contador_bolsas_v) #contador de bolsas verdes cargadas
@@ -327,6 +358,11 @@ class Juego:
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5],self.pantalla)
         self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla)
         if self.ingresando_nombre == False:
+            # **Dibuja la barra de carga primero**
+            self.barra_carga.dibujar()
+            # **Dibuja el porcentaje sobre la barra de carga después**
+            self.dibujar_porcentaje_sobre_barra()
+
             self.dibujar_texto(self.nombre_jugador[:10], self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
@@ -512,7 +548,7 @@ class Juego:
                     self.entrada_texto()
                 else:
                     self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
-                    self.minuts, self.seconds, self.miliseconds = self.temporizador.restar_tiempo()
+                    self.minuts, self.seconds, self.miliseconds, porcentaje_restante = self.temporizador.restar_tiempo()
                     if self.minuts == "00" and self.seconds == "00"and self.miliseconds == "00":
                         resultadoPartida = 0
                         break 
@@ -525,9 +561,12 @@ class Juego:
                     self.jugador.mover(velocidad)
                     self.jugador.limitar_a_pantalla(self.ancho_pantalla, self.alto_pantalla)
                     self.logica_bolsa_cestos()
+                    # Actualizar barra de carga con porcentaje restante
+                    self.barra_carga.actualizar(float(porcentaje_restante))
                     self.actualizar()
                     self.actualizar_eventos_temporizador()
                     self.tiempo_total = str(self.minuts)+":"+str(self.seconds)+":"+str(self.miliseconds)
+                    self.porcentaje_total = f"{porcentaje_restante}"  # Formato del porcentaje
                 pygame.display.update()
                 self.reloj.tick(60)
 
@@ -544,8 +583,8 @@ class Juego:
             if decision == "guardar":
                 print("eligio guardar")
                 archivos.main(self.nombre_jugador,self.tiempo_total )
-                import mejores_tiempos
-                mejores_tiempos.main()
+                #import mejores_tiempos
+                #mejores_tiempos.main()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
         main()

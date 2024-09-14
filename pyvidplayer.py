@@ -85,7 +85,5 @@ class Video:
         
     def draw(self, surf, pos, force_draw=True):
         if self.active:
-            print("dibujar video")
             if self.update() or force_draw:
-                print("dibujar video")
                 surf.blit(self.image, pos)
