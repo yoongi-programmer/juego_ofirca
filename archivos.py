@@ -2,7 +2,7 @@ from io import open
 import os
 import pygame
 
-def creacionComprobacion():
+def creacion_comprobacion():
     global tiempos, nombres 
     global ruta_nombres, ruta_tiempos
     
@@ -29,12 +29,12 @@ def creacionComprobacion():
     else:
          print("timepos ya existe en la carpeta")
 
-def cargaDatos(nombreGuardar,marcaGuardar):
-    tiempos_listado=archivosLectores(ruta_tiempos)
-    nombres_listado=archivosLectores(ruta_nombres)
+def carga_datos(nombre_guardar,marca_guardar):
+    tiempos_listado=archivos_lectores(ruta_tiempos)
+    nombres_listado=archivos_lectores(ruta_nombres)
     
-    if nombreGuardar in nombres_listado:
-        parametroGenerales()
+    if nombre_guardar in nombres_listado:
+        parametro_generales()
         corriendo=True
         ancho_pantalla, alto_pantalla = 400, 400
         ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
@@ -49,27 +49,27 @@ def cargaDatos(nombreGuardar,marcaGuardar):
         pantalla.blit(ventana, (pos_x, pos_y))
 
         while corriendo:
-            teclasSubmenu = pygame.key.get_pressed()
+            teclas_submenu = pygame.key.get_pressed()
             for evento in pygame.event.get():
-                if evento.type==teclasSubmenu[pygame.K_s]:
-                    modificador(ruta_tiempos,marcaGuardar,nombres_listado,tiempos_listado,nombreGuardar)
+                if evento.type==teclas_submenu[pygame.K_s]:
+                    modificador(ruta_tiempos,marca_guardar,nombres_listado,tiempos_listado,nombre_guardar)
                     pygame.quit()
-                elif evento.type==teclasSubmenu[pygame.K_n]:
+                elif evento.type==teclas_submenu[pygame.K_n]:
                     corriendo=False
                 elif evento.type == pygame.QUIT:
                     pygame.quit()
                     pass
         
-    elif not nombreGuardar in nombres_listado:
+    elif not nombre_guardar in nombres_listado:
         tiempos=open(ruta_tiempos,'a')
         nombres=open(ruta_nombres,'a')
-        tiempos.write(str(marcaGuardar)+'\n')
-        nombres.write(str(nombreGuardar)+'\n')
+        tiempos.write(str(marca_guardar)+'\n')
+        nombres.write(str(nombre_guardar)+'\n')
         print("carga exitosa")
         tiempos.close()
         nombres.close()
         
-def parametroGenerales():
+def parametro_generales():
         global color_fondo
         global pantalla
         color_fondo                  = (0, 0, 0)
@@ -83,28 +83,28 @@ def dibujar_menu():
     pantalla.fill(color_fondo) 
     pygame.display.flip()
     
-def mostrarDatos():
-    tiemposListado=archivosLectores(ruta_tiempos)
-    nombresListado=archivosLectores(ruta_nombres)
-    rachas=list(zip(nombresListado,tiemposListado))
+def mostrar_datos():
+    tiempos_listado=archivos_lectores(ruta_tiempos)
+    nombres_listado=archivos_lectores(ruta_nombres)
+    rachas=list(zip(nombres_listado,tiempos_listado))
     for nombres,tiempos in rachas:
         print(f"{nombres} {tiempos}")
 
         
-def mostrarMejores():
+def mostrar_mejores():
     pass
 
-def modificador(archivo,deseocambiante,nombresRecibidos,marcasRecibidos,nombreJugador):
+def modificador(archivo,deseocambiante,nombres_recibidos,marcas_recibidos,nombre_jugador):
      archivo=open(archivo,"w")
-     posicion=nombresRecibidos.index(nombreJugador)
+     posicion=nombres_recibidos.index(nombre_jugador)
      print(posicion)
-     marcasRecibidos[posicion]=deseocambiante
-     for elemento in marcasRecibidos:
+     marcas_recibidos[posicion]=deseocambiante
+     for elemento in marcas_recibidos:
          elemento=str(elemento)
          archivo.write(elemento+"\n")
      archivo.close()
  
-def archivosLectores(archivo):
+def archivos_lectores(archivo):
     archivo = open(archivo,"r")
     contenido=[linea.strip() for linea in archivo]
     archivo.close()
@@ -117,6 +117,6 @@ def main(nombre,marca):
     print("entro al main de archivos")
     print(nombre)
     print(marca)
-    creacionComprobacion()
+    creacion_comprobacion()
     print("se comprobaron y se crearon correctamente")
-    cargaDatos(nombre,marca)         
+    carga_datos(nombre,marca)         

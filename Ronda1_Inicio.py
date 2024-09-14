@@ -3,10 +3,15 @@ import pygame #bajar la libreria desde la terminal
 import sys
 import random
 import time
+from utilidades import cargar_gif_fondo
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Temporizador
+from pyvidplayer import Video
 import cambiar_personaje
+import archivos
+
+
 # Inicialización de Pygame
 pygame.init()
 pygame.font.init()
@@ -306,13 +311,13 @@ class Juego:
             tiempo_restante = max(0, self.duracion_habilidad_velocidad - int(tiempo_transcurrido))
             tiempo_restante = str(tiempo_restante)
             self.pantalla.blit(self.img_velocidad, (pos_x_img[4],pos_y_img[4]))
-            self.dibujar_texto(tiempo_restante,self.fuente_pequeña,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
+            self.dibujar_texto(tiempo_restante,self.fuente_mediana,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
         if self.mostrar_atravesar:
             tiempo_transcurrido = time.time() - self.habilidad_atravesar_obs_tiempo
             tiempo_restante = max(0, self.duracion_habilidad_atravesar - int(tiempo_transcurrido))
             tiempo_restante = str(tiempo_restante)
             self.pantalla.blit(self.img_atravesar, (pos_x_img[5],pos_y_img[5]))
-            self.dibujar_texto(tiempo_restante,self.fuente_pequeña2,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
+            self.dibujar_texto(tiempo_restante,self.fuente_mediana,self.color_blanco, pos_x[9], pos_y[9],self.pantalla)
 
         self.dibujar_texto(intro_texto, self.fuente_pequeña, self.color_blanco, pos_x[0], pos_y[0],self.pantalla)
         self.dibujar_texto(marcador_bolsasv, self.fuente_mediana, self.color_blanco, pos_x[1], pos_y[1],self.pantalla)
@@ -322,7 +327,7 @@ class Juego:
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5],self.pantalla)
         self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla)
         if self.ingresando_nombre == False:
-            self.dibujar_texto(self.nombre_jugador[:10], self.fuente_pequeña2, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
+            self.dibujar_texto(self.nombre_jugador[:10], self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
         # Eventos y lógica del juego
@@ -464,7 +469,16 @@ class Juego:
         self.musica_ganar.reproducir()
         pygame.display.update()
         # Espera 3 segundos antes de salir
-        time.sleep(3)    
+        time.sleep(3)
+    def perder(self):
+        #Cargar video 
+        video = Video("img/game_over.mp4")
+        video.set_size((1150,640)) 
+        video.draw(self.pantalla,(0,0))
+        # Loop para reproducir el video
+        while video.active:
+            video.draw(self.pantalla, (0, 0))
+            pygame.display.update()
     #Funcion principal que maneja todos los eventos del juego en un bucle
     def bucle_juego(self):
         while self.juego_ejecutado:
@@ -522,13 +536,16 @@ class Juego:
         time.sleep(2)
         #Cuando termina el juego        
         if resultadoPartida==0:
-            print("perdiste como un pichón")
+            print("perdisteee")
+            self.perder()
         elif resultadoPartida==1:        
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":
                 print("eligio guardar")
-                self.entrada_texto()
+                archivos.main(self.nombre_jugador,self.tiempo_total )
+                import mejores_tiempos
+                mejores_tiempos.main()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
         main()
