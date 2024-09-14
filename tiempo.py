@@ -70,7 +70,7 @@ class Temporizador:
 
                 porcentaje= (tiempo_actual/self.duracion_inicial)*100
 
-                return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}",f"{porcentaje:.2f}"
+                return f"{minutos:02}", f"{segundos:02}", f"{milisegundos:02}",f"{int(porcentaje)}"
         else:
             # Devuelve el tiempo restante si el temporizador está detenido
             minutos = int(self.tiempo_restante // 60)

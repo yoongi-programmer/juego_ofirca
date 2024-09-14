@@ -10,7 +10,6 @@ from tiempo import Cronometro
 from tiempo import Temporizador
 import cambiar_personaje
 import archivos 
-import Ronda1_Inicio
 
 # Inicialización de Pygame
 pygame.init()
