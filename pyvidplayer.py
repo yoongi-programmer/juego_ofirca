@@ -1,6 +1,6 @@
 import pygame 
 from pymediainfo import MediaInfo
-from ffpyplayer.player import MediaPlayer
+import ffpyplayer
 from os.path import exists, basename, splitext
 from os import strerror
 from errno import ENOENT
@@ -11,7 +11,9 @@ class Video:
         self.path = path
         
         if exists(path):
-            self.video = MediaPlayer(path)
+            self.video = ffpyplayer.MediaPlayer(path)
+            if not self.video:  # Verifica si el MediaPlayer fue creado correctamente
+                raise ValueError(f"Error al cargar el video {path}")
             info = self.get_file_data()
             
             self.duration = info["duration"]

@@ -10,6 +10,7 @@ from tiempo import Temporizador
 from pyvidplayer import Video
 import cambiar_personaje
 import archivos
+import mejores_tiempos
 
 # Inicialización de Pygame
 pygame.init()
@@ -583,8 +584,8 @@ class Juego:
             if decision == "guardar":
                 print("eligio guardar")
                 archivos.main(self.nombre_jugador,self.tiempo_total )
-                #import mejores_tiempos
-                #mejores_tiempos.main()
+                
+                mejores_tiempos.main()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
         main()
