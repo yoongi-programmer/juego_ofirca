@@ -81,11 +81,10 @@ class Juego:
         self.duracion_habilidad = 10
         self.tiempo_habilidad_restante = 0
         # Datos del personaje
-        self.nombre_personaje = 'UAIBOT'
         self.ruta_imagen = ["img/assets/UAIBOT.png", "img/assets/bota.png", "img/assets/uaibotino.png", "img/assets/uaibotina.png"]
         self.nombres = ['UAIBOT', 'BOTA', 'UAIBOTINO', 'UAIBOTINA']
-        self.ancho = [22,17,22,22]
-        self.alto = [10,5,10,10]
+        self.ancho = [24,18,27,27]
+        self.alto = [12,9,14,15]
         self.velocidades = [7, 7, 10.15,10.15,11]#10.15 es el 45% mas que 7
         self.num_robot = [1, 2, 3, 4]
         self.habilidad_atravesar_obs = False
@@ -279,7 +278,7 @@ class Juego:
         ]    
         # Inicializar instancias de las clases
         self.pos_bot = (100,90)
-        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombre_personaje, self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla,self.ancho[0],self.alto[0])
+        self.jugador = self.Jugador("img/assets/UAIBOT.png", self.nombres[0], self.pos_bot, self.velocidades[0], self.num_robot[0], self.pantalla,self.ancho[0],self.alto[0])
         self.cesto_verde = self.Cesto("img/assets/cestoverder.jpeg", (1000, 105), self.pantalla)
         self.cesto_negro = self.Cesto("img/assets/cestogriss.png", (1000, 520), self.pantalla)
         self.cestos.extend([self.cesto_verde, self.cesto_negro])
@@ -415,6 +414,8 @@ class Juego:
         personaje_elegido = cambiar_personaje.main()
         if personaje_elegido in range(1, 5):
             print(f"Cambiando a personaje {personaje_elegido} con velocidad {self.velocidades[personaje_elegido - 1]}")
+            print(f"{self.ancho[personaje_elegido - 1],self.alto[personaje_elegido-1],self.ruta_imagen[personaje_elegido-1],
+                    self.num_robot[personaje_elegido-1],self.nombres[personaje_elegido-1]}")
             self.jugador = self.Jugador(
                 self.ruta_imagen[personaje_elegido - 1],
                 self.nombres[personaje_elegido - 1],
@@ -440,7 +441,7 @@ class Juego:
                     self.bolsas.remove(bolsa)
 
         if self.habilidad_velocidad:
-            velocidad = self.obtener_velocidad_jugador(self.velocidades[4])
+            velocidad = self.obtener_velocidad_jugador(self.velocidades[4]) #velocidad mayor
         else:
             velocidad = self.obtener_velocidad_jugador(self.jugador.rapidez)
         # Hacer que el jugador choque con las colisiones y no pase a traves de ellas 
@@ -520,8 +521,7 @@ class Juego:
             else:
                 # Mostrar el ultimo frame y no actualizar mas
                 self.pantalla.blit(self.frames[-1], (0, 0))
-                corriendo = False
-        
+                corriendo = False      
     #Funcion que muestra una animacion cuando pierde
     def perder(self):
         # Cargar frames del video
@@ -551,7 +551,6 @@ class Juego:
             else:
                 # Mostrar el ultimo frame y no actualizar mas
                 self.pantalla.blit(self.frames[-1], (0, 0))
-        
     #Funcion principal que maneja todos los eventos del juego en un bucle
     def bucle_juego(self):
         while self.juego_ejecutado:
@@ -613,7 +612,6 @@ class Juego:
         if self.resultado_partida==0:
             self.perder()
         elif self.resultado_partida==1:
-            time.sleep(2)
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":
