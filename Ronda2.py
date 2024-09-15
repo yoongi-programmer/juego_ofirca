@@ -505,7 +505,7 @@ class Juego:
     #Funcion que muestra una pantalla cuando gana
     def ganar(self):
         # Cargar frames del video
-        self.frames = cargar_gif_fondo("img/ganar/frame_1 (1).png",1,6,").png")
+        self.frames = cargar_gif_fondo("img/ganar/frame_1 (1).png",20,6,").gif")
         self.frame_actual = 0
         self.pantalla.fill((0, 0, 0))
         self.musica_ganar.reproducir()
