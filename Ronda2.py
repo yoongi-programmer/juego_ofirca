@@ -69,10 +69,10 @@ class Juego:
         self.nombre_jugador = ""
         self.ingresando_nombre = True
         self.temporizador= Temporizador()
-        self.tiempo_total = "0:00:00"
+        self.tiempo_total = "00:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
         self.porcentaje_total = "00"
-        self.barra_carga = BarraCargaDecremental(self.pantalla, (550, 550), (300, 75), (255, 0, 0), 10)  # Barra roja, duración 10 segundos
+        self.barra_carga = BarraCargaDecremental(self.pantalla, (550, 15), (300, 40), (255, 0, 0), 10)  # Barra roja, duración 10 segundos
         self.temporizador_habilidad = "5"
         self.mostrar_velocidad = False
         self.mostrar_atravesar = False
@@ -188,6 +188,7 @@ class Juego:
         self.img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (150, 170))
         self.img_velocidad = pygame.transform.scale(pygame.image.load('img/velocidad.png').convert_alpha(), (120, 55))
         self.img_atravesar = pygame.transform.scale(pygame.image.load('img/atravesar.png').convert_alpha(), (140, 55))
+        self.img_fondo_carga = pygame.transform.scale(pygame.image.load('img/fondo_carga.png').convert_alpha(), (300, 55))
         # Cargar fuentes
         self.fuente_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
@@ -328,10 +329,10 @@ class Juego:
 
         self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
         #Variables para las coordenadas y el tamaño de los recuadros
-        pos_x_img = [40, 13, 1070,1070,250,415]
-        pos_y_img = [230, 420, 125,540,15,15]
-        pos_x = [60,105, 105, 25, 1085,1085,800,20,220,390]
-        pos_y = [610,240, 310, 500, 128,543,15,18,20,20] 
+        pos_x_img = [40 , 13 , 1070 ,1070,250,415,545]
+        pos_y_img = [230, 420, 125  ,540 ,15 ,15 ,11]
+        pos_x = [60 ,105, 105, 25 , 1085,1085,950,20,220,390]
+        pos_y = [610,240, 310, 500, 128 ,543 ,15 ,18,20 ,20]  #yyyyy
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
         #for zona in self.zonas_obstaculos:
@@ -340,6 +341,9 @@ class Juego:
         self.pantalla.blit(self.img_cont_bolsas, (pos_x_img[1], pos_y_img[1]))
         self.pantalla.blit(self.img_recuadro_verde, (pos_x_img[2], pos_y_img[2]))
         self.pantalla.blit(self.img_recuadro_gris, (pos_x_img[3], pos_y_img[3]))
+
+        self.pantalla.blit(self.img_fondo_carga, (pos_x_img[6], pos_y_img[6]))
+
         if self.mostrar_velocidad:
             tiempo_transcurrido = time.time() - self.habilidad_velocidad_tiempo
             tiempo_restante = max(0, self.duracion_habilidad_velocidad - int(tiempo_transcurrido))
@@ -359,7 +363,7 @@ class Juego:
         self.dibujar_texto(cuenta_regresiva, self.fuente_grande, self.color_blanco, pos_x[3], pos_y[3],self.pantalla)
         self.dibujar_texto(cestos_v_contador, self.fuente_mediana, self.color_blanco, pos_x[4], pos_y[4],self.pantalla)
         self.dibujar_texto(cestos_n_contador, self.fuente_mediana, self.color_blanco, pos_x[5], pos_y[5],self.pantalla)
-        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla)
+        self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla) ##temporizador
         if self.ingresando_nombre == False:
             # **Dibuja la barra de carga primero**
             self.barra_carga.dibujar()
