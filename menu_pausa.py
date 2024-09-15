@@ -4,11 +4,11 @@ from utilidades import dibujar_texto, cargar_gif_fondo
 from menu_inicio import MenuInicio
 
 pygame.init
-
+pygame.font.init()
 class MenuPausa:
     def __init__(self, pantalla, menu_inicio):
         self.pantalla = pantalla
-        self.frames = cargar_gif_fondo("img/menu_pausa/frame_0.png")
+        self.frames = cargar_gif_fondo("img/menu_pausa/frame_0.png",0,5,".png")
         self.frame_actual = 0
         self.retraso_animacion = 5  # Milisegundos entre frames
         self.ultimo_cambio = pygame.time.get_ticks()

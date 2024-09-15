@@ -9,7 +9,7 @@ import time
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Temporizador
-from utilidades import cargar_video_fondo
+from utilidades import cargar_gif_fondo
 import cambiar_personaje
 import archivos
 import mejores_tiempos
@@ -55,10 +55,12 @@ class Juego:
         self.musica_pausa = self.Musica("sonidos/pausa.mp3",-1,0.4)
         self.musica_jugar = self.Musica("sonidos/jugar.mp3",-1,0.1)
         self.musica_ganar = self.Musica("sonidos/musica_ganar.mp3",1,0.9)
+        self.musica_perder = self.Musica("sonidos/game_over.mp3",1,0.5)
         self.sonido_bolsa = self.Musica("sonidos/sonido_bolsa.mp3",1,0.3)
         self.sonido_reloj = self.Musica("sonidos/reloj.mp3",-1,0.1)
         self.sonido_cesto = self.Musica("sonidos/sonido_cesto.mp3",1,0.9)
         self.sonido_choque = self.Musica("sonidos/choque.mp3",1,0.7)
+        self.sonido_habilidad = self.Musica("sonidos/level_up.mp3",1,0.5)
         self.ancho_pantalla = 1150
         self.alto_pantalla = 640
         self.pantalla = pygame.display.set_mode((self.ancho_pantalla, self.alto_pantalla))
@@ -385,8 +387,7 @@ class Juego:
         for item in self.items:
             item.dibujar(self.pantalla)
         self.jugador.dibujar(self.pantalla)
-
-    #Funcion para obtener la velovcidad del jugador y moverlo
+    #Funcion para genera eventos aleatorios donde crear los cofres
     def actualizar_eventos_temporizador(self):
         # Verificar si ha pasado el tiempo para generar un cofre
         if self.temporizador.tiempo_actual <= self.tiempo_proximo_evento:
@@ -395,7 +396,7 @@ class Juego:
             # Definir un nuevo tiempo aleatorio para el siguiente cofre
             self.tiempo_proximo_evento = self.temporizador.tiempo_actual - random.randint(10, 18)
             print(f"proximo evento {self.tiempo_proximo_evento}")
-
+    #Funcion para obtener la velovcidad del jugador y moverlo
     def obtener_velocidad_jugador(self,rapidez):
         keys = pygame.key.get_pressed()
         velocidad = [0, 0]
@@ -456,7 +457,6 @@ class Juego:
         
         for cofre in self.cofres[:]:
             if self.jugador.rect.colliderect(cofre):
-                print(f"choco con un cofre")
                 self.cofres.remove(cofre)  # Eliminar cofre
                 imagen = random.choice(self.items_img)
                 tipo = "pocion" if "pocion" in imagen else "escudo"
@@ -465,15 +465,14 @@ class Juego:
         
         for item in self.items[:]:
             if self.jugador.rect.colliderect(item):
+                self.sonido_habilidad.reproducir()
                 if item.tipo == "pocion":
-                    print("item de velocidad")
                     self.habilidad_velocidad = True 
                     self.mostrar_velocidad = True
                     self.habilidad_velocidad_tiempo = time.time()
                     pygame.time.delay(1000)
                     self.items.remove(item)
                 else:
-                    print("item de atravesar obs")
                     self.habilidad_atravesar_obs = True
                     self.mostrar_atravesar = True
                     self.habilidad_atravesar_obs_tiempo = time.time()
@@ -505,21 +504,32 @@ class Juego:
             self.juego_ejecutado = False
     #Funcion que muestra una pantalla cuando gana
     def ganar(self):
-        # Carga la imagen de fondo de victoria
-        img_victoria = pygame.image.load("img/fondo_ganar.png").convert_alpha()
-        img_victoria = pygame.transform.scale(img_victoria, (self.pantalla.get_width(), self.pantalla.get_height()))
-
-        self.pantalla.blit(img_victoria, (0, 0))
+        # Cargar frames del video
+        self.frames = cargar_gif_fondo("img/ganar/frame_1 (1).png",1,6,").png")
+        self.frame_actual = 0
+        self.pantalla.fill((0, 0, 0))
         self.musica_ganar.reproducir()
-        pygame.display.update()
-        # Espera 3 segundos antes de salir
-        time.sleep(3)
+        corriendo = True
+        while corriendo:
+            if self.frame_actual < len(self.frames) - 1:
+                # Actualizar frame del video
+                self.frame_actual = (self.frame_actual + 1) % len(self.frames)
+                self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
+                pygame.display.flip()
+                self.reloj.tick(30)
+            else:
+                # Mostrar el ultimo frame y no actualizar mas
+                self.pantalla.blit(self.frames[-1], (0, 0))
+                corriendo = False
+        
+    #Funcion que muestra una animacion cuando pierde
     def perder(self):
         # Cargar frames del video
-        self.frames = cargar_video_fondo("img/game_over/GAME OVER_50ms_1.png")
+        self.frames = cargar_gif_fondo("img/game_over/GAME OVER_50ms_1.png",1,5,".png")
         self.frame_actual = 0
         self.pantalla.fill((0, 0, 0))
         corriendo = True
+        self.musica_perder.reproducir()
         while corriendo:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
@@ -532,11 +542,16 @@ class Juego:
                         self.bucle_juego()
                     elif evento.key == pygame.K_2:
                         main()
-            # Actualizar frame del GIF
-            self.frame_actual = (self.frame_actual + 1) % len(self.frames)
-            self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
-            pygame.display.flip()
-            self.reloj.tick(30)
+            if self.frame_actual < len(self.frames) - 1:
+                # Actualizar frame del video
+                self.frame_actual = (self.frame_actual + 1) % len(self.frames)
+                self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
+                pygame.display.flip()
+                self.reloj.tick(30)
+            else:
+                # Mostrar el ultimo frame y no actualizar mas
+                self.pantalla.blit(self.frames[-1], (0, 0))
+        
     #Funcion principal que maneja todos los eventos del juego en un bucle
     def bucle_juego(self):
         while self.juego_ejecutado:
@@ -594,12 +609,11 @@ class Juego:
 
         self.musica_jugar.detener()
         self.sonido_reloj.detener()
-        time.sleep(2)
         #Cuando termina el juego        
         if self.resultado_partida==0:
-            print("perdisteee")
             self.perder()
-        elif self.resultado_partida==1:        
+        elif self.resultado_partida==1:
+            time.sleep(2)
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":
@@ -639,9 +653,9 @@ class Juego:
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_RETURN:  # Si presiona Enter
                         self.dibujar_texto(bienvenida, self.fuente_pequeña2, self.color_blanco, 280, 470, self.pantalla)
-                        self.dibujar_texto(bienvenida2, self.fuente_pequeña2, self.color_blanco, 290, 495, self.pantalla)
+                        self.dibujar_texto(bienvenida2, self.fuente_pequeña2, self.color_blanco, 260, 495, self.pantalla)
                         pygame.display.flip()
-                        pygame.time.delay(3000)
+                        pygame.time.delay(2000)
                         self.ingresando_nombre = False  # Termina el ingreso de nombre  
                     elif evento.key == pygame.K_BACKSPACE:  # Borrar último carácter
                         self.nombre_jugador = self.nombre_jugador[:-1]
@@ -652,7 +666,6 @@ class Juego:
             self.reloj.tick(60)
 
     def guardar_partida(self):
-        print("Guardar partida")
         ancho_pantalla, alto_pantalla = 874, 521
         ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
         pygame.display.set_caption("Guardar partida")
@@ -675,14 +688,6 @@ class Juego:
                         return "guardar"
                     elif event.key == pygame.K_n:  # No guardar
                         return "no_guardar"
-                    elif event.key == pygame.K_q:  # Salir del juego
-                        pygame.quit()
-                        sys.exit()
-
-    def otra_partida(self, texto):
-        print(texto)
-        self.inicializar_juego()
-        self.bucle_juego()  
 #___________________Funcion principal que maneja los estados del juego___________________
 def main():    
     pantalla = pygame.display.set_mode((1150, 640))

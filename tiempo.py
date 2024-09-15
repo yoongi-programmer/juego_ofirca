@@ -2,7 +2,7 @@ import time
         
 class Temporizador:
     def __init__(self):
-        self.duracion_inicial = 70  # 75 segundos
+        self.duracion_inicial = 75  # 75 segundos
         self.tiempo_restante = self.duracion_inicial
         self.tiempo_inicio = 0
         self.tiempo_actual = 0

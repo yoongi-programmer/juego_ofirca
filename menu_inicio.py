@@ -1,7 +1,7 @@
 import pygame
 from utilidades import dibujar_texto, cargar_gif_fondo
 pygame.init()
-
+pygame.font.init()
 class MenuInicio:
     def __init__(self):
         #Dibujando pantalla de menu inicio
@@ -11,7 +11,7 @@ class MenuInicio:
         self.boton_informacion = pygame.Rect(190, 349, 300, 50)
         self.boton_salir = pygame.Rect(190, 449, 300, 50)
         # Cargar frames del GIF
-        self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png")
+        self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png",0,5,".png")
         self.frame_actual = 0
         # Fuentes y colores
         self.fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
@@ -60,7 +60,7 @@ class MenuInicio:
     def mostrar_informacion(self):
         # Cargar frames del GIF
         pygame.display.set_caption("Instrucciones")
-        frames_info = cargar_gif_fondo("img/instrucciones/frame0.png")
+        frames_info = cargar_gif_fondo("img/instrucciones/frame0.png",0,5,".png")
         frame_actual = 0
 
         # Dibujar las instrucciones
