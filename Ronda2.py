@@ -1,13 +1,15 @@
-#!/usr/bin/env python, -*- coding: utf-8 -*-
+# Equipo 19535 Tec.py integrado por 3 alumnos de la Escuela Técnica N°2 de la Rép. Argentina
+# Integrantes: Juan Cruz. Melanie Romero. Leonardo Robles
+# El siguiente programa tiene como funcionalidad manejar los eventos del jugador como jugar, ver instrucciones o salir
+# en donde el juego principal es mover a un robot para recolectar basura y llevarla  a un contenedor de basura
 import pygame #bajar la libreria desde la terminal
 import sys
 import random
 import time
-from utilidades import cargar_gif_fondo
 from menu_pausa import MenuPausa
 from menu_inicio import MenuInicio
 from tiempo import Temporizador
-from pyvidplayer import Video
+from utilidades import cargar_video_fondo
 import cambiar_personaje
 import archivos
 import mejores_tiempos
@@ -30,7 +32,7 @@ class BarraCargaDecremental:
         self.color = color                  # Color de la barra.
         self.tiempo_total = tiempo_total    # Tiempo total en segundos para que la barra se vacíe.
         self.ancho_inicial = tamano[0]      # Ancho inicial de la barra.
-
+        
     def actualizar(self, porcentaje_restante):
         # Calcula el ancho de la barra basado en el porcentaje restante del temporizador
         nuevo_ancho = int(self.ancho_inicial * (porcentaje_restante / 100))
@@ -288,7 +290,7 @@ class Juego:
         self.tiempo_proximo_evento = random.randint(60, 70)
         self.duracion_habilidad_velocidad = 10  # segundos
         self.duracion_habilidad_atravesar = 10  # segundos
-
+        self.resultado_partida = 1
         print(f"{self.tiempo_proximo_evento}")
         self.total_bolsas = len(self.bolsas)
         self.temporizador.reiniciar()
@@ -407,6 +409,7 @@ class Juego:
         self.temporizador.detener()
         personaje_elegido = cambiar_personaje.main()
         if personaje_elegido in range(1, 5):
+            print(f"Cambiando a personaje {personaje_elegido} con velocidad {self.velocidades[personaje_elegido - 1]}")
             self.jugador = self.Jugador(
                 self.ruta_imagen[personaje_elegido - 1],
                 self.nombres[personaje_elegido - 1],
@@ -508,14 +511,28 @@ class Juego:
         # Espera 3 segundos antes de salir
         time.sleep(3)
     def perder(self):
-        #Cargar video 
-        video = Video("img/game_over.mp4")
-        video.set_size((1150,640)) 
-        video.draw(self.pantalla,(0,0))
-        # Loop para reproducir el video
-        while video.active:
-            video.draw(self.pantalla, (0, 0))
-            pygame.display.update()
+        # Cargar frames del video
+        self.frames = cargar_video_fondo("img/game_over/GAME OVER_50ms_1.png")
+        self.frame_actual = 0
+        self.pantalla.fill((0, 0, 0))
+        corriendo = True
+        while corriendo:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_1:
+                        self.inicializar_juego()
+                        self.musica_jugar.reproducir_loop()
+                        self.bucle_juego()
+                    elif evento.key == pygame.K_2:
+                        main()
+            # Actualizar frame del GIF
+            self.frame_actual = (self.frame_actual + 1) % len(self.frames)
+            self.pantalla.blit(self.frames[self.frame_actual], (0, 0))
+            pygame.display.flip()
+            self.reloj.tick(30)
     #Funcion principal que maneja todos los eventos del juego en un bucle
     def bucle_juego(self):
         while self.juego_ejecutado:
@@ -551,10 +568,10 @@ class Juego:
                     self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
                     self.minuts, self.seconds, self.miliseconds, porcentaje_restante = self.temporizador.restar_tiempo()
                     if self.minuts == "00" and self.seconds == "00"and self.miliseconds == "00":
-                        resultadoPartida = 0
+                        self.resultado_partida = 0
                         break 
                     else:
-                        resultadoPartida = 1
+                        self.resultado_partida = 1
                     if self.habilidad_velocidad:
                         velocidad = self.obtener_velocidad_jugador(self.velocidades[4])
                     else:
@@ -575,10 +592,10 @@ class Juego:
         self.sonido_reloj.detener()
         time.sleep(2)
         #Cuando termina el juego        
-        if resultadoPartida==0:
+        if self.resultado_partida==0:
             print("perdisteee")
             self.perder()
-        elif resultadoPartida==1:        
+        elif self.resultado_partida==1:        
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":

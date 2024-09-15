@@ -52,19 +52,15 @@ def manejar_clicks(pos):
     global robot_elegido
     robot_elegido = None
     if rect_boton1.collidepoint(pos):
-        print("uaibot papa ")
         robot_elegido=1
         return robot_elegido
     elif rect_boton2.collidepoint(pos):
-        print("bota mama")
         robot_elegido=2
         return robot_elegido
     elif rect_boton3.collidepoint(pos):
-        print("uaibotino hijo ")
         robot_elegido=3
         return robot_elegido
     elif rect_boton4.collidepoint(pos):
-        print("uaibotina hija")
         robot_elegido=4
         return robot_elegido
     else:

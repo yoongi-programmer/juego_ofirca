@@ -24,3 +24,22 @@ def cargar_gif_fondo(ruta_gif):
         sys.exit()
     
     return frames
+
+def cargar_video_fondo(ruta_gif):
+    frames = []
+    try:
+        i = 1
+        while True:
+            ruta_frame = f"{ruta_gif[:-5]}{i}.png"
+            if os.path.exists(ruta_frame):
+                frame = pygame.image.load(ruta_frame).convert()
+                frames.append(frame)
+                i += 1
+            else:
+                break
+    except Exception as e:
+        print(f"No se pudo cargar el GIF: {e}")
+        pygame.quit()
+        sys.exit()
+    
+    return frames

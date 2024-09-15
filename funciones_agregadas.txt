@@ -32,4 +32,4 @@ Funciones añadidas al juego
 	•	Se guarda el nombre del jugador, el tiempo que tardó y en base a eso se genera una tabla de puntaje de los 10 mejores.
 -	Gráficos realizados por el mismo equipo. 
 	•	El fondo del juego fue realizado por el equipo en el programa RPG Maker. 
-	•	Los objetos como bolsas, cestos y letreros por un programa pixel art.
+	•	Los objetos como bolsas, cestos y otros objetos por un programa pixel art.
