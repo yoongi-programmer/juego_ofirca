@@ -25,7 +25,6 @@ class Estado:
     SALIR = 4
 class BarraCargaDecremental:
     def __init__(self, pantalla, posicion, tamano, color, tiempo_total):
-        # Inicializa la barra de carga
         self.pantalla = pantalla            # Superficie de pygame donde se dibujará la barra de carga.
         self.posicion = posicion            # (x, y) posición inicial de la barra en la ventana.
         self.tamano = tamano                # Tamaño de la barra.
@@ -74,12 +73,7 @@ class Juego:
         self.tiempo_total = "00:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
         self.porcentaje_total = "00"
-        self.barra_carga = BarraCargaDecremental(self.pantalla, (550, 15), (300, 40), (255, 0, 0), 10)  # Barra roja, duración 10 segundos
-        self.temporizador_habilidad = "5"
-        self.mostrar_velocidad = False
-        self.mostrar_atravesar = False
-        self.duracion_habilidad = 10
-        self.tiempo_habilidad_restante = 0
+        self.barra_carga = BarraCargaDecremental(self.pantalla, (710, 30), (250, 17), (230, 229, 106, 1), 10)  # Barra roja, duración 10 segundos
         # Datos del personaje
         self.ruta_imagen = ["img/assets/UAIBOT.png", "img/assets/bota.png", "img/assets/uaibotino.png", "img/assets/uaibotina.png"]
         self.nombres = ['UAIBOT', 'BOTA', 'UAIBOTINO', 'UAIBOTINA']
@@ -87,8 +81,6 @@ class Juego:
         self.alto = [12,9,14,15]
         self.velocidades = [7, 7, 10.15,10.15,11]#10.15 es el 45% mas que 7
         self.num_robot = [1, 2, 3, 4]
-        self.habilidad_atravesar_obs = False
-        self.habilidad_velocidad = False
         # Inicializar el juego
         self.inicializar_datos()
     #___________________CLASE JUGADOR___________________
@@ -189,7 +181,7 @@ class Juego:
         self.img_cont_bolsas = pygame.transform.scale(pygame.image.load('img/contador_bolsas.png').convert_alpha(), (150, 170))
         self.img_velocidad = pygame.transform.scale(pygame.image.load('img/velocidad.png').convert_alpha(), (120, 55))
         self.img_atravesar = pygame.transform.scale(pygame.image.load('img/atravesar.png').convert_alpha(), (140, 55))
-        self.img_fondo_carga = pygame.transform.scale(pygame.image.load('img/fondo_carga.png').convert_alpha(), (300, 55))
+        self.img_fondo_carga = pygame.transform.scale(pygame.image.load('img/barra.png').convert_alpha(), (280, 30))
         # Cargar fuentes
         self.fuente_grande = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 60)
         self.fuente_mediana = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 35)
@@ -200,7 +192,6 @@ class Juego:
     #Funcion que genera posiciones aleatorias en zonas seguras
     def generar_posicion_aleatoria(self,ancho,alto,zonas):
         zona_seleccionada = random.choice(zonas) # Seleccionar una zona segura aleatoria    
-        # Generar una posición aleatoria dentro de la zona segura seleccionada
         posicion_valida = False
         while not posicion_valida:
             # Asegurarse de que la bolsa esté completamente dentro de los límites de la zona segura
@@ -290,10 +281,13 @@ class Juego:
         self.bolsas_v_depositadas = 0
         self.bolsas_g_depositadas = 0
         self.tiempo_proximo_evento = random.randint(60, 70)
+        self.habilidad_atravesar_obs = False
+        self.habilidad_velocidad = False
         self.duracion_habilidad_velocidad = 10  # segundos
         self.duracion_habilidad_atravesar = 10  # segundos
+        self.mostrar_velocidad = False
+        self.mostrar_atravesar = False
         self.resultado_partida = 1
-        print(f"{self.tiempo_proximo_evento}")
         self.total_bolsas = len(self.bolsas)
         self.temporizador.reiniciar()
     #Funcion para dibujar texto
@@ -311,8 +305,8 @@ class Juego:
         pantalla.blit(texto_borde, (pos_x + 1, pos_y + 1))  # Esquina inferior derecha
         # Dibujar el texto principal sobre el borde
         pantalla.blit(texto_renderizado, (pos_x, pos_y))
+    #Dibuja el porcentaje de tiempo restante sobre la barra decremental.
     def dibujar_porcentaje_sobre_barra(self):
-        #Dibuja el porcentaje de tiempo restante sobre la barra decremental.
         pos_x_barra, pos_y_barra = self.barra_carga.posicion # Obtener la posición de la barra de carga
         # Preparar el texto del porcentaje
         texto_porcentaje = f"{self.porcentaje_total}%"
@@ -330,9 +324,9 @@ class Juego:
 
         self.pantalla.blit(self.img_fondo, (0, 0)) #Dibujar el fondo en la pantalla
         #Variables para las coordenadas y el tamaño de los recuadros
-        pos_x_img = [40 , 13 , 1070 ,1070,250,415,545]
-        pos_y_img = [230, 420, 125  ,540 ,15 ,15 ,11]
-        pos_x = [60 ,105, 105, 25 , 1085,1085,950,20,220,390]
+        pos_x_img = [40 , 13 , 1070 ,1070,250,415,695]
+        pos_y_img = [230, 420, 125  ,540 ,15 ,15 ,25]
+        pos_x = [60 ,105, 105, 25 , 1085,1085,990,20,220,390]
         pos_y = [610,240, 310, 500, 128 ,543 ,15 ,18,20 ,20]  #yyyyy
         intro_texto = "Elije a tu robot con la tecla C para recolecta residuos y llevarlos a sus cestos correspondientes"
 
@@ -343,15 +337,13 @@ class Juego:
         self.pantalla.blit(self.img_recuadro_verde, (pos_x_img[2], pos_y_img[2]))
         self.pantalla.blit(self.img_recuadro_gris, (pos_x_img[3], pos_y_img[3]))
 
-        self.pantalla.blit(self.img_fondo_carga, (pos_x_img[6], pos_y_img[6]))
-
-        if self.mostrar_velocidad:
-            tiempo_transcurrido = time.time() - self.habilidad_velocidad_tiempo
+        if self.mostrar_velocidad: #mostrar una barra que indique tiene la habilidad y el tiempo que dura
+            tiempo_transcurrido = time.time() - self.habilidad_velocidad_tiempo #el tiempo actual menos el tiempo en el que se activo  la habilidad
             tiempo_restante = max(0, self.duracion_habilidad_velocidad - int(tiempo_transcurrido))
             tiempo_restante = str(tiempo_restante)
             self.pantalla.blit(self.img_velocidad, (pos_x_img[4],pos_y_img[4]))
             self.dibujar_texto(tiempo_restante,self.fuente_mediana,self.color_blanco, pos_x[8], pos_y[8],self.pantalla)
-        if self.mostrar_atravesar:
+        if self.mostrar_atravesar: #mostrar una barra que indique tiene la habilidad y el tiempo que dura
             tiempo_transcurrido = time.time() - self.habilidad_atravesar_obs_tiempo
             tiempo_restante = max(0, self.duracion_habilidad_atravesar - int(tiempo_transcurrido))
             tiempo_restante = str(tiempo_restante)
@@ -367,10 +359,10 @@ class Juego:
         self.dibujar_texto(self.tiempo_total, self.fuente_mediana, self.color_blanco, pos_x[6], pos_y[6],self.pantalla) ##temporizador
         if self.ingresando_nombre == False:
             # **Dibuja la barra de carga primero**
+            self.pantalla.blit(self.img_fondo_carga, (pos_x_img[6], pos_y_img[6]))
             self.barra_carga.dibujar()
             # **Dibuja el porcentaje sobre la barra de carga después**
             self.dibujar_porcentaje_sobre_barra()
-
             self.dibujar_texto(self.nombre_jugador[:10], self.fuente_mediana, self.color_blanco, pos_x[7], pos_y[7],self.pantalla)#imprime solo los primeros 10 caracteres      
     #Funcion que dibuja los personajes y objetos que constantemente se actualizan
     def actualizar(self):
@@ -413,9 +405,6 @@ class Juego:
         self.temporizador.detener()
         personaje_elegido = cambiar_personaje.main()
         if personaje_elegido in range(1, 5):
-            print(f"Cambiando a personaje {personaje_elegido} con velocidad {self.velocidades[personaje_elegido - 1]}")
-            print(f"{self.ancho[personaje_elegido - 1],self.alto[personaje_elegido-1],self.ruta_imagen[personaje_elegido-1],
-                    self.num_robot[personaje_elegido-1],self.nombres[personaje_elegido-1]}")
             self.jugador = self.Jugador(
                 self.ruta_imagen[personaje_elegido - 1],
                 self.nombres[personaje_elegido - 1],
@@ -470,14 +459,14 @@ class Juego:
                 if item.tipo == "pocion":
                     self.habilidad_velocidad = True 
                     self.mostrar_velocidad = True
-                    self.habilidad_velocidad_tiempo = time.time()
-                    pygame.time.delay(1000)
+                    self.habilidad_velocidad_tiempo = time.time() #empieza a correr el tiempo de la habilidad
+                    pygame.time.delay(1000) #espera un segundo antes de eliminar el item
                     self.items.remove(item)
                 else:
                     self.habilidad_atravesar_obs = True
                     self.mostrar_atravesar = True
                     self.habilidad_atravesar_obs_tiempo = time.time()
-                    pygame.time.delay(1000)
+                    pygame.time.delay(1000) #espera un segundo antes de eliminar el item
                     self.items.remove(item)
         # Verificar si la habilidad de velocidad ha estado activa por más de 5 segundos
         if self.habilidad_velocidad and (time.time() - self.habilidad_velocidad_tiempo > 10):
@@ -501,7 +490,7 @@ class Juego:
             self.contador_bolsas -= self.contador_bolsas_g
             self.contador_bolsas_g = 0
 
-        if self.total_bolsas == 0:
+        if self.total_bolsas == 0: #si ya no quedan bolsas el juego se acaba
             self.juego_ejecutado = False
     #Funcion que muestra una pantalla cuando gana
     def ganar(self):
@@ -521,6 +510,7 @@ class Juego:
             else:
                 # Mostrar el ultimo frame y no actualizar mas
                 self.pantalla.blit(self.frames[-1], (0, 0))
+                pygame.time.delay(1000)
                 corriendo = False      
     #Funcion que muestra una animacion cuando pierde
     def perder(self):
@@ -559,24 +549,25 @@ class Juego:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    # Cambiar de personaje cuando se presiona la tecla C
-                    if event.key == pygame.K_c:
-                        self.cambiar_personaje()
-                    # Poner el juego en pausa cuando se presiona la tecla ESC
-                    elif event.key == pygame.K_ESCAPE:
-                        self.juego_pausado = not self.juego_pausado
-                        self.temporizador.detener()
-                        if self.juego_pausado:
-                            pygame.display.set_caption("Menú de pausa")
-                            self.menu_pausa.mostrar_menu(self.pantalla)
-                            self.juego_pausado = False
-                            return "pausa"
-                    # Reiniciar juego cuando se presiona  la tecla R
-                    elif event.key == pygame.K_r:
-                        self.inicializar_juego()
-                        self.musica_jugar.detener()
-                        self.musica_jugar.reproducir_loop()
+                if not self.ingresando_nombre:
+                    if event.type == pygame.KEYDOWN:
+                        # Cambiar de personaje cuando se presiona la tecla C
+                        if event.key == pygame.K_c:
+                            self.cambiar_personaje()
+                        # Poner el juego en pausa cuando se presiona la tecla ESC
+                        elif event.key == pygame.K_ESCAPE:
+                            self.juego_pausado = not self.juego_pausado
+                            self.temporizador.detener()
+                            if self.juego_pausado:
+                                pygame.display.set_caption("Menú de pausa")
+                                self.menu_pausa.mostrar_menu(self.pantalla)
+                                self.juego_pausado = False
+                                return "pausa"
+                        # Reiniciar juego cuando se presiona  la tecla R
+                        elif event.key == pygame.K_r:
+                            self.inicializar_juego()
+                            self.musica_jugar.detener()
+                            self.musica_jugar.reproducir_loop()
             
             if not self.juego_pausado:
                 self.dibujar_ui()                
@@ -585,7 +576,7 @@ class Juego:
                 else:
                     self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
                     self.minuts, self.seconds, self.miliseconds, porcentaje_restante = self.temporizador.restar_tiempo()
-                    if self.minuts == "00" and self.seconds == "00"and self.miliseconds == "00":
+                    if self.minuts == "00" and self.seconds == "00" and self.miliseconds == "00" and self.porcentaje_total == "0":
                         self.resultado_partida = 0
                         break 
                     else:
