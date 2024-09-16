@@ -17,7 +17,7 @@ class MenuPausa:
     def mostrar_menu(self,pantalla):
         fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
         fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 32)
-        recuadro = pygame.image.load("img/assets/recuadro_pausa.png")
+        recuadro = pygame.image.load("img/recuadro_pausa.png")
         color_blanco = (255, 255, 255)
         pos_title = (470, 100)
         pos_btn1 = (455, 303) #eje x, eje y

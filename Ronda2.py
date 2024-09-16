@@ -608,7 +608,6 @@ class Juego:
             if decision == "guardar":
                 print("eligio guardar")
                 archivos.main(self.nombre_jugador,self.tiempo_total )
-                
                 mejores_tiempos.main()
             elif decision == "no_guardar":
                 print("eligio no guardar y va al main")
@@ -695,7 +694,10 @@ def main():
             elif opcion_menu_inicio == "jugar":
                 juego.musica_inicio.detener()
                 estado = Estado.JUGANDO
-
+            elif opcion_menu_inicio == "puntaje":
+                juego.musica_inicio.detener()
+                archivos.main(juego.nombre_jugador,juego.tiempo_total )
+                mejores_tiempos.main()
         elif estado == Estado.JUGANDO:
             juego.inicializar_juego()
             juego.musica_jugar.reproducir_loop()

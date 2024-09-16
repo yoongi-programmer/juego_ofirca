@@ -7,9 +7,10 @@ class MenuInicio:
         #Dibujando pantalla de menu inicio
         self.pantalla = pygame.display.set_mode((1150, 640))
         # Variables para los botones
-        self.boton_empezar = pygame.Rect(190, 247, 300, 50)
-        self.boton_informacion = pygame.Rect(190, 349, 300, 50)
-        self.boton_salir = pygame.Rect(190, 449, 300, 50)
+        self.boton_empezar = pygame.Rect(200, 227, 300, 50)
+        self.boton_informacion = pygame.Rect(200, 329, 300, 50)
+        self.boton_salir = pygame.Rect(200, 429, 300, 50)
+        self.boton_puntaje = pygame.Rect(200, 529, 300, 50)
         # Cargar frames del GIF
         self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png",0,5,".png")
         self.frame_actual = 0
@@ -17,10 +18,11 @@ class MenuInicio:
         self.fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
         self.fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 36)
         self.color_blanco = (255, 255, 255)
-        self.pos_title = (125, 100)
-        self.pos_btn1 = (285, 255)
-        self.pos_btn2 = (210, 357)
-        self.pos_btn3 = (285, 457)
+        self.pos_title = (125, 80)
+        self.pos_btn1 = (285, 235)
+        self.pos_btn2 = (210, 337)
+        self.pos_btn3 = (285, 437)
+        self.pos_btn4 = (210, 537)
 
     def bucle_principal(self):
         reloj = pygame.time.Clock()
@@ -37,6 +39,8 @@ class MenuInicio:
                         self.mostrar_informacion()
                     elif self.boton_salir.collidepoint(evento.pos):
                         return "salir"  # Indicamos que el jugador quiere salir
+                    elif self.boton_puntaje.collidepoint(evento.pos):
+                        return "puntaje"
 
             self.pantalla.fill((0, 0, 0))
             # Actualizar frame del GIF
@@ -48,9 +52,11 @@ class MenuInicio:
             pygame.draw.rect(self.pantalla, self.color_blanco, self.boton_empezar, width=3)
             pygame.draw.rect(self.pantalla, self.color_blanco, self.boton_informacion, width=3)
             pygame.draw.rect(self.pantalla, self.color_blanco, self.boton_salir, width=3)
+            pygame.draw.rect(self.pantalla, self.color_blanco, self.boton_puntaje, width=3)
             dibujar_texto(self.pantalla, "Jugar", self.fuente, self.color_blanco, self.pos_btn1[0], self.pos_btn1[1])
             dibujar_texto(self.pantalla, "Informacion", self.fuente, self.color_blanco, self.pos_btn2[0], self.pos_btn2[1])
             dibujar_texto(self.pantalla, "Salir", self.fuente, self.color_blanco, self.pos_btn3[0], self.pos_btn3[1])
+            dibujar_texto(self.pantalla, "Ver puntajes", self.fuente, self.color_blanco, self.pos_btn4[0], self.pos_btn4[1])
 
             pygame.display.flip()
             reloj.tick(10)
