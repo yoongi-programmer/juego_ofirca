@@ -39,9 +39,9 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
     fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 20)
     fondo = pygame.transform.scale(pygame.image.load("img/fondo_puntaje.png").convert_alpha(),(pantalla.get_width(),pantalla.get_height()))
     global boton_volver
-    boton_volver = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (200, 100))
+    boton_volver = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (200, 80))
     pantalla.blit(fondo,(0,0))
-    pantalla.blit(boton_volver,(500,580))
+    pantalla.blit(boton_volver,(500,540))
     # Título
     dibujar_texto_borde("Mejores marcas",fuente_title,(255,255,255),330,10,pantalla)
 
