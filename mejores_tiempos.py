@@ -36,9 +36,11 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
     fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 55)
     fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 20)
     fondo = pygame.transform.scale(pygame.image.load("img/fondo_puntaje.png").convert_alpha(),(pantalla.get_width(),pantalla.get_height()))
-    boton_volver = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (220, 85))
+    boton_volver_img = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (220, 85))
+    boton_volver = pygame.Rect(500,540,220,85)
+    estrella = pygame.transform.scale(pygame.image.load('img/estrella.png').convert_alpha(), (30, 30))
     pantalla.blit(fondo,(0,0))
-    pantalla.blit(boton_volver,(500,540))
+    pantalla.blit(boton_volver_img,(500,540))
     # Título
     dibujar_texto_borde("Mejores marcas",fuente_title,(255,255,255),330,12,pantalla)
     dibujar_texto(pantalla,"Ranking",fuente,(197,57,178),210,130)
@@ -53,11 +55,27 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
         segundos = int(tiempo % 60)
         milisegundos = int((tiempo - int(tiempo)) * 1000)
         print(f"{minutos}, {segundos},{milisegundos}")
+        
         tiempo_formateado = f"{minutos:02}:{segundos:02}:{milisegundos:02}"
         texto = f"{i + 1:<16} {nombre:<20} {tiempo_formateado:<15}"
         texto_renderizado = fuente.render(texto, True, (255, 255, 255))
         pantalla.blit(texto_renderizado, (210, 180 + i * 35))
 
+        tiempo_usado = 75 - tiempo # el tiempo que tardo el jugador en ganar
+        print(f"tiempo:  {tiempo_usado} segundos")
+
+        if tiempo_usado <=20: #0 - 25
+            puntaje = 3
+            print(f"puntaje: {puntaje}") 
+        elif tiempo_usado <=35 and tiempo_usado >25: #26 - 35
+            puntaje = 2
+            print(f"puntaje: {puntaje}") 
+        elif tiempo_usado >35:
+            puntaje = 1
+            print(f"puntaje: {puntaje}") 
+        
+        for j in range (0,puntaje): #imprime estrellas segun el puntaje
+            pantalla.blit(estrella,(800 + j * 30 ,175 + i *35)) #dibuja una estrella al lado de la otra
     pygame.display.flip()  # Actualizar pantalla
 
 def main():
