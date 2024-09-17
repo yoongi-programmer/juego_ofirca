@@ -22,7 +22,7 @@ class MenuInicio:
         self.pos_btn1 = (285, 235)
         self.pos_btn2 = (210, 337)
         self.pos_btn3 = (285, 437)
-        self.pos_btn4 = (210, 537)
+        self.pos_btn4 = (260, 537)
 
     def bucle_principal(self):
         reloj = pygame.time.Clock()
@@ -56,7 +56,7 @@ class MenuInicio:
             dibujar_texto(self.pantalla, "Jugar", self.fuente, self.color_blanco, self.pos_btn1[0], self.pos_btn1[1])
             dibujar_texto(self.pantalla, "Informacion", self.fuente, self.color_blanco, self.pos_btn2[0], self.pos_btn2[1])
             dibujar_texto(self.pantalla, "Salir", self.fuente, self.color_blanco, self.pos_btn3[0], self.pos_btn3[1])
-            dibujar_texto(self.pantalla, "Ver puntajes", self.fuente, self.color_blanco, self.pos_btn4[0], self.pos_btn4[1])
+            dibujar_texto(self.pantalla, "Puntajes", self.fuente, self.color_blanco, self.pos_btn4[0], self.pos_btn4[1])
 
             pygame.display.flip()
             reloj.tick(10)
