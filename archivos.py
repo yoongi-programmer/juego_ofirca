@@ -79,7 +79,6 @@ def parametro_generales():
         alto_pantalla  = 450
         pantalla       = pygame.display.set_mode((ancho_pantalla, alto_pantalla))    
 def dibujar_menu():
-
     pantalla.fill(color_fondo) 
     pygame.display.flip()
     
@@ -89,10 +88,6 @@ def mostrar_datos():
     rachas=list(zip(nombres_listado,tiempos_listado))
     for nombres,tiempos in rachas:
         print(f"{nombres} {tiempos}")
-
-        
-def mostrar_mejores():
-    pass
 
 def modificador(archivo,deseocambiante,nombres_recibidos,marcas_recibidos,nombre_jugador):
      archivo=open(archivo,"w")
@@ -109,14 +104,10 @@ def archivos_lectores(archivo):
     contenido=[linea.strip() for linea in archivo]
     archivo.close()
     return contenido
-def dibujar_sobre_escritura():
-    pass
-
 
 def main(nombre,marca):
     print("entro al main de archivos")
-    print(nombre)
-    print(marca)
+    print(f"{nombre},{marca}")
     creacion_comprobacion()
     print("se comprobaron y se crearon correctamente")
     carga_datos(nombre,marca)         

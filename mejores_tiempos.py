@@ -38,9 +38,10 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
     fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 20)
     fondo = pygame.transform.scale(pygame.image.load("img/fondo_puntaje.png").convert_alpha(),(pantalla.get_width(),pantalla.get_height()))
     global boton_volver
-    boton_volver = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (220, 85))
+    img_boton_volver = pygame.transform.scale(pygame.image.load('img/boton.png').convert_alpha(), (220, 85))
+    boton_volver = pygame.Rect(500, 540, 220, 85)
     pantalla.blit(fondo,(0,0))
-    pantalla.blit(boton_volver,(500,540))
+    pantalla.blit(img_boton_volver,(500,540))
     # Título
     dibujar_texto_borde("Mejores marcas",fuente_title,(255,255,255),330,12,pantalla)
     dibujar_texto(pantalla,"Ranking",fuente,(197,57,178),210,130)
@@ -55,7 +56,7 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
         segundos = int(tiempo % 60)
         print(f"{horas}, {minutos},{segundos}")
         tiempo_formateado = f"{horas:02}:{minutos:02}:{segundos:02}"
-        texto = f"{i + 1:<16} {nombre:<20} {tiempo_formateado:<15}"
+        texto = f"{i + 1:<17} {nombre:<20} {tiempo_formateado:<15}"
         texto_renderizado = fuente.render(texto, True, (255, 255, 255))
         pantalla.blit(texto_renderizado, (210, 180 + i * 35))
 
@@ -90,10 +91,9 @@ def main():
             
             if event.type ==  pygame.MOUSEBUTTONDOWN:
                 if boton_volver.collidepoint(event.pos):
+                    print("toco boton volver")
                     corriendo = False
                     return "volver"
-
-
     pygame.quit()
 
 def archivos_lectores(archivo):

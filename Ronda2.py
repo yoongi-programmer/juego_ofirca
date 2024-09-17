@@ -23,6 +23,7 @@ class Estado:
     JUGANDO = 2
     PAUSA = 3
     SALIR = 4
+    PUNTAJE = 5
 class BarraCargaDecremental:
     def __init__(self, pantalla, posicion, tamano, color, tiempo_total):
         self.pantalla = pantalla            # Superficie de pygame donde se dibujará la barra de carga.
@@ -606,11 +607,9 @@ class Juego:
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":
-                print("eligio guardar")
                 archivos.main(self.nombre_jugador,self.tiempo_total )
                 mejores_tiempos.main()
-            elif decision == "no_guardar":
-                print("eligio no guardar y va al main")
+                return "puntaje"
         main()
     
     def entrada_texto(self):
@@ -695,9 +694,8 @@ def main():
                 juego.musica_inicio.detener()
                 estado = Estado.JUGANDO
             elif opcion_menu_inicio == "puntaje":
-                juego.musica_inicio.detener()
-                archivos.main(juego.nombre_jugador,juego.tiempo_total )
-                mejores_tiempos.main()
+                estado = Estado.PUNTAJE
+
         elif estado == Estado.JUGANDO:
             juego.inicializar_juego()
             juego.musica_jugar.reproducir_loop()
@@ -706,7 +704,8 @@ def main():
             if respuesta == "pausa":
                 estado = Estado.PAUSA
                 continue
-
+            if respuesta == "puntaje":
+                estado = Estado.PUNTAJE
         elif estado == Estado.PAUSA:
             print("estado en pausa")
             juego.musica_jugar.detener()
@@ -718,6 +717,12 @@ def main():
             elif opcion_menu_pausa == "salir":
                 estado = Estado.INICIO
                 juego.musica_pausa.detener()
-            
+        elif estado == Estado.PUNTAJE:
+            juego.musica_inicio.detener()
+            archivos.main(juego.nombre_jugador,juego.tiempo_total )
+            opcion = mejores_tiempos.main()
+            if opcion == "volver":
+                print("opcion volver a inicio")
+                estado = Estado.INICIO
 if __name__ == "__main__":
     main()
