@@ -17,13 +17,14 @@ import mejores_tiempos
 # Inicialización de Pygame
 pygame.init()
 pygame.font.init()
-
+#Clase Estado que maneja los estados y eventos principales del juego
 class Estado:
     INICIO = 1
     JUGANDO = 2
     PAUSA = 3
     SALIR = 4
     PUNTAJE = 5
+#Clase de la Barra de Carga que crea y dibuja esta en la pantalla principal
 class BarraCargaDecremental:
     def __init__(self, pantalla, posicion, tamano, color, tiempo_total):
         self.pantalla = pantalla            # Superficie de pygame donde se dibujará la barra de carga.
@@ -42,9 +43,6 @@ class BarraCargaDecremental:
         # Dibuja la barra de carga en la pantalla.
         pygame.draw.rect(self.pantalla, self.color, (*self.posicion, *self.tamano))
 
-    def ha_terminado(self):
-        # Verifica si la barra de carga ha terminado.
-        return self.tamano[0] <= 0
 class Juego:
     def __init__(self, pantalla):
         self.estado = Estado.INICIO
@@ -66,10 +64,7 @@ class Juego:
         self.pantalla = pygame.display.set_mode((self.ancho_pantalla, self.alto_pantalla))
         pygame.display.set_caption("OFIRCA 2024 - Ronda 1 - Inicio")
         self.reloj = pygame.time.Clock()
-        self.juego_ejecutado = True
         self.juego_pausado = False
-        self.nombre_jugador = ""
-        self.ingresando_nombre = True
         self.temporizador= Temporizador()
         self.tiempo_total = "00:00:00"
         self.menu_pausa = MenuPausa(pantalla, self.menu_inicio)
@@ -240,6 +235,7 @@ class Juego:
         self.bolsas.extend(bolsas_verdes + bolsas_grises)
     #Funcion que incializa las estructuras de datos necesarias para el juego
     def inicializar_juego(self):
+        print("inicializar juego")
         self.bolsas = []
         self.cestos = []
         # Posiciones random
@@ -282,13 +278,16 @@ class Juego:
         self.bolsas_v_depositadas = 0
         self.bolsas_g_depositadas = 0
         self.tiempo_proximo_evento = random.randint(60, 70)
+        self.nombre_jugador = ""
+        self.ingresando_nombre = True
         self.habilidad_atravesar_obs = False
         self.habilidad_velocidad = False
         self.duracion_habilidad_velocidad = 10  # segundos
         self.duracion_habilidad_atravesar = 10  # segundos
         self.mostrar_velocidad = False
         self.mostrar_atravesar = False
-        self.resultado_partida = 1
+        self.resultado_partida = 0
+        self.juego_ejecutado = True
         self.total_bolsas = len(self.bolsas)
         self.temporizador.reiniciar()
     #Funcion para dibujar texto
@@ -308,13 +307,11 @@ class Juego:
         pantalla.blit(texto_renderizado, (pos_x, pos_y))
     #Dibuja el porcentaje de tiempo restante sobre la barra decremental.
     def dibujar_porcentaje_sobre_barra(self):
-        pos_x_barra, pos_y_barra = self.barra_carga.posicion # Obtener la posición de la barra de carga
         # Preparar el texto del porcentaje
         texto_porcentaje = f"{self.porcentaje_total}%"
-        texto_ancho, texto_alto = self.fuente_mediana2.size(texto_porcentaje)  # Obtener tamaño del texto
-        pos_x_texto = pos_x_barra + (self.barra_carga.tamano[0] // 2) - (texto_ancho // 2)
-        pos_y_texto = pos_y_barra + (self.barra_carga.tamano[1] // 2) - (texto_alto // 2)
-        self.dibujar_texto(texto_porcentaje, self.fuente_pequeña2, self.color_blanco, pos_x_texto, pos_y_texto,self.pantalla)
+        pos_x_texto = 820
+        pos_y_texto = 30
+        self.dibujar_texto(texto_porcentaje, self.fuente_pequeña, self.color_blanco, pos_x_texto, pos_y_texto,self.pantalla)
     #Funcion que dibuja la interfaz grafica
     def dibujar_ui(self):
         marcador_bolsasv = str(self.contador_bolsas_v) #contador de bolsas verdes cargadas
@@ -387,7 +384,6 @@ class Juego:
             self.cofres.append(self.Obstaculos("img/assets/cofre.png",posicion,self.pantalla,26,16,"cofre"))
             # Definir un nuevo tiempo aleatorio para el siguiente cofre
             self.tiempo_proximo_evento = self.temporizador.tiempo_actual - random.randint(10, 18)
-            print(f"proximo evento {self.tiempo_proximo_evento}")
     #Funcion para obtener la velovcidad del jugador y moverlo
     def obtener_velocidad_jugador(self,rapidez):
         keys = pygame.key.get_pressed()
@@ -577,11 +573,11 @@ class Juego:
                 else:
                     self.temporizador.iniciar() # si ya ingreso el nombre entonces corre el juego 
                     self.minuts, self.seconds, self.miliseconds, porcentaje_restante = self.temporizador.restar_tiempo()
-                    if self.minuts == "00" and self.seconds == "00" and self.miliseconds == "00" and self.porcentaje_total == "0":
-                        self.resultado_partida = 0
-                        break 
-                    else:
+                    if self.minuts == "00" and self.seconds == "00" and self.miliseconds == "00" and self.porcentaje_total == "0" and self.total_bolsas > 0: #CUANDO PIERDE
                         self.resultado_partida = 1
+                        break 
+                    else: #CUANDO GANA
+                        self.resultado_partida = 2
                     if self.habilidad_velocidad:
                         velocidad = self.obtener_velocidad_jugador(self.velocidades[4])
                     else:
@@ -600,18 +596,20 @@ class Juego:
 
         self.musica_jugar.detener()
         self.sonido_reloj.detener()
+        print(f"resultado partida: {self.resultado_partida}")
         #Cuando termina el juego        
-        if self.resultado_partida==0:
+        if self.resultado_partida==1:
             self.perder()
-        elif self.resultado_partida==1:
+        elif self.resultado_partida==2:
+            print("jugador gano y pide guardar partida")
             self.ganar()
             decision = self.guardar_partida()
             if decision == "guardar":
-                archivos.main(self.nombre_jugador,self.tiempo_total )
+                archivos.main(self.nombre_jugador,self.tiempo_total,self.pantalla)
                 mejores_tiempos.main()
                 return "puntaje"
         main()
-    
+    #Funcion de entrada de texto
     def entrada_texto(self):
         ancho_pantalla, alto_pantalla = 874, 521
         self.ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
@@ -651,7 +649,7 @@ class Juego:
                         self.nombre_jugador += evento.unicode
             pygame.display.flip()
             self.reloj.tick(60)
-
+    #Funcion de guardar partida
     def guardar_partida(self):
         ancho_pantalla, alto_pantalla = 874, 521
         ventana = pygame.Surface((ancho_pantalla, alto_pantalla))
@@ -706,6 +704,7 @@ def main():
                 continue
             if respuesta == "puntaje":
                 estado = Estado.PUNTAJE
+        
         elif estado == Estado.PAUSA:
             print("estado en pausa")
             juego.musica_jugar.detener()
@@ -717,12 +716,13 @@ def main():
             elif opcion_menu_pausa == "salir":
                 estado = Estado.INICIO
                 juego.musica_pausa.detener()
+        
         elif estado == Estado.PUNTAJE:
             juego.musica_inicio.detener()
-            archivos.main(juego.nombre_jugador,juego.tiempo_total )
             opcion = mejores_tiempos.main()
             if opcion == "volver":
-                print("opcion volver a inicio")
+                print("recibio volver de puntaje")
                 estado = Estado.INICIO
+
 if __name__ == "__main__":
     main()

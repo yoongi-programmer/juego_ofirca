@@ -1,16 +1,15 @@
 import pygame
 from utilidades import dibujar_texto, cargar_gif_fondo
-pygame.init()
-pygame.font.init()
+
 class MenuInicio:
     def __init__(self):
         #Dibujando pantalla de menu inicio
         self.pantalla = pygame.display.set_mode((1150, 640))
         # Variables para los botones
-        self.boton_empezar = pygame.Rect(200, 227, 300, 50)
-        self.boton_informacion = pygame.Rect(200, 329, 300, 50)
-        self.boton_salir = pygame.Rect(200, 429, 300, 50)
-        self.boton_puntaje = pygame.Rect(200, 529, 300, 50)
+        self.boton_empezar = pygame.Rect(200, 237, 300, 50)
+        self.boton_informacion = pygame.Rect(200, 339, 300, 50)
+        self.boton_salir = pygame.Rect(200, 439, 300, 50)
+        self.boton_puntaje = pygame.Rect(200, 539, 300, 50)
         # Cargar frames del GIF
         self.frames = cargar_gif_fondo("img/menu_inicio/gif0.png",0,5,".png")
         self.frame_actual = 0
@@ -18,13 +17,15 @@ class MenuInicio:
         self.fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 90)
         self.fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 36)
         self.color_blanco = (255, 255, 255)
-        self.pos_title = (125, 80)
-        self.pos_btn1 = (285, 235)
-        self.pos_btn2 = (210, 337)
-        self.pos_btn3 = (285, 437)
-        self.pos_btn4 = (260, 537)
+        self.pos_title = (125, 100)
+        self.pos_btn1 = (285, 245)
+        self.pos_btn2 = (213, 347)
+        self.pos_btn3 = (260, 447)
+        self.pos_btn4 = (285, 547)
 
     def bucle_principal(self):
+        pygame.init()
+        pygame.font.init()
         reloj = pygame.time.Clock()
         corriendo = True
         while corriendo:
@@ -55,8 +56,8 @@ class MenuInicio:
             pygame.draw.rect(self.pantalla, self.color_blanco, self.boton_puntaje, width=3)
             dibujar_texto(self.pantalla, "Jugar", self.fuente, self.color_blanco, self.pos_btn1[0], self.pos_btn1[1])
             dibujar_texto(self.pantalla, "Informacion", self.fuente, self.color_blanco, self.pos_btn2[0], self.pos_btn2[1])
-            dibujar_texto(self.pantalla, "Salir", self.fuente, self.color_blanco, self.pos_btn3[0], self.pos_btn3[1])
-            dibujar_texto(self.pantalla, "Puntajes", self.fuente, self.color_blanco, self.pos_btn4[0], self.pos_btn4[1])
+            dibujar_texto(self.pantalla, "Puntajes", self.fuente, self.color_blanco, self.pos_btn3[0], self.pos_btn3[1])
+            dibujar_texto(self.pantalla, "Salir", self.fuente, self.color_blanco, self.pos_btn4[0], self.pos_btn4[1])
 
             pygame.display.flip()
             reloj.tick(10)
@@ -66,6 +67,7 @@ class MenuInicio:
     def mostrar_informacion(self):
         # Cargar frames del GIF
         pygame.display.set_caption("Instrucciones")
+        musica = pygame.mixer.Sound("sonidos/chill.mp3")
         frames_info = cargar_gif_fondo("img/instrucciones/frame0.png",0,5,".png")
         frame_actual = 0
 

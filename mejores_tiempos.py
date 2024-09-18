@@ -33,6 +33,7 @@ def extraer_mejores_marcas(ruta_nombres, ruta_tiempos, num_mejores=10):
 
 def mostrar_mejores_marcas(pantalla, mejores_marcas):
     global boton_volver
+    puntaje = 0
     fuente_title = pygame.font.Font("fonts/pixel_digivolve/Pixel Digivolve.otf", 55)
     fuente = pygame.font.Font("fonts/depixel/DePixelBreit.ttf", 20)
     fondo = pygame.transform.scale(pygame.image.load("img/fondo_puntaje.png").convert_alpha(),(pantalla.get_width(),pantalla.get_height()))
@@ -50,29 +51,22 @@ def mostrar_mejores_marcas(pantalla, mejores_marcas):
     #  Mostrar las mejores marcas
     for i, (nombre, tiempo) in enumerate(mejores_marcas):
         # Convertir de nuevo a formato HH:MM:SS para mostrarlo
-        print(f"segundos total {tiempo}")
         minutos = int(tiempo // 60)
         segundos = int(tiempo % 60)
         milisegundos = int((tiempo - int(tiempo)) * 1000)
-        print(f"{minutos}, {segundos},{milisegundos}")
         
-        tiempo_formateado = f"{minutos:02}:{segundos:02}:{milisegundos:02}"
+        tiempo_formateado = f"{minutos:02}:{segundos:02}:{milisegundos:01}"
         texto = f"{i + 1:<16} {nombre:<20} {tiempo_formateado:<15}"
         texto_renderizado = fuente.render(texto, True, (255, 255, 255))
         pantalla.blit(texto_renderizado, (210, 180 + i * 35))
 
         tiempo_usado = 75 - tiempo # el tiempo que tardo el jugador en ganar
-        print(f"tiempo:  {tiempo_usado} segundos")
-
         if tiempo_usado <=20: #0 - 25
             puntaje = 3
-            print(f"puntaje: {puntaje}") 
-        elif tiempo_usado <=35 and tiempo_usado >25: #26 - 35
+        elif tiempo_usado <=35 and tiempo_usado >20: #26 - 35
             puntaje = 2
-            print(f"puntaje: {puntaje}") 
         elif tiempo_usado >35:
             puntaje = 1
-            print(f"puntaje: {puntaje}") 
         
         for j in range (0,puntaje): #imprime estrellas segun el puntaje
             pantalla.blit(estrella,(800 + j * 30 ,175 + i *35)) #dibuja una estrella al lado de la otra
@@ -108,6 +102,7 @@ def main():
             if event.type ==  pygame.MOUSEBUTTONDOWN:
                 if boton_volver.collidepoint(event.pos):
                     corriendo = False
+                    print("volviendo de puntaje a inicio")
                     return "volver"
     pygame.quit()
 
